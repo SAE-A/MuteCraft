@@ -59,7 +59,6 @@ public class PianoPage extends JFrame {
         ImageIcon button_stop = new ImageIcon(getClass().getResource("/img/button_stop.png"));
         ImageIcon button_record = new ImageIcon(getClass().getResource("/img/button_record.png"));
         ImageIcon metronome = new ImageIcon(getClass().getResource("/img/metronome.png"));
-        JButton passbtn = new JButton("Pass");
         ImageIcon button_add = new ImageIcon(getClass().getResource("/img/button_add.png"));
 
         JButton backbtn = new JButton("");
@@ -88,7 +87,6 @@ public class PianoPage extends JFrame {
         // 오른쪽 패널
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.add(passbtn);
         rightPanel.add(addbtn);
 
         // 이미지 버튼 설정
@@ -139,22 +137,22 @@ public class PianoPage extends JFrame {
         metronomebtn.setBorderPainted(false);
         metronomebtn.setFocusPainted(false);
         metronomebtn.setPreferredSize(new Dimension(50, 50));
-        
-        passbtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Pass 버튼 클릭!");
-                Mixing mixing = new Mixing();
-                // mixing.setAudioFilePath("src/resources/lydfiler/audio/record_piano.wav");
-                mixing.setVisible(true);
-            }
-        });
 
         addbtn.setIcon(resizeIcon(button_add, 25, 25));
         addbtn.setContentAreaFilled(false);
         addbtn.setBorderPainted(false);
         addbtn.setFocusPainted(false);
         addbtn.setPreferredSize(new Dimension(50, 50));
+        
+        addbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("add 버튼 클릭!");
+                Mixing mixing = new Mixing();
+                // mixing.setAudioFilePath("src/resources/lydfiler/audio/record_piano.wav");
+                mixing.setVisible(true);
+            }
+        });
 
         // 패널에 추가
         panel_buttons.add(leftPanel, BorderLayout.WEST);

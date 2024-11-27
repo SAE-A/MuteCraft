@@ -23,7 +23,7 @@ public class ChatPage extends JFrame {
         // JFrame 설정
         setTitle("Chat Room");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 600, 400);  // 창 크기 줄이기
+        setBounds(100, 100, 852, 393);
         setLocationRelativeTo(null);  // 창을 화면 중앙에 배치
         contentPane = new JPanel();
         contentPane.setBackground(Color.WHITE);
@@ -32,7 +32,7 @@ public class ChatPage extends JFrame {
 
         // 상단 버튼 및 'Chat' 텍스트 설정
         JPanel panel_buttons = new JPanel();
-        panel_buttons.setBounds(0, 0, 600, 50);  // 상단 크기 조정
+        panel_buttons.setBounds(0, 0, 852, 50);  // 상단 크기 조정
         panel_buttons.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10)); // 왼쪽 정렬
 
         // 이미지 아이콘 로드
@@ -73,12 +73,12 @@ public class ChatPage extends JFrame {
         textPane.setContentType("text/html");  // HTML 콘텐츠 타입 사용
         textPane.setBackground(new Color(230, 230, 230)); 
         JScrollPane scrollPane = new JScrollPane(textPane);
-        scrollPane.setBounds(12, 60, 560, 230);
+        scrollPane.setBounds(12, 60, 812, 230);
         contentPane.add(scrollPane);
 
         // 메시지 입력 필드
         txtInput = new JTextField();
-        txtInput.setBounds(12, 300, 490, 40);  // 입력 필드 크기 조정
+        txtInput.setBounds(12, 300, 740, 40);  // 입력 필드 크기 조정
         txtInput.setBackground(new Color(230, 230, 230)); 
         contentPane.add(txtInput);
         txtInput.setColumns(10);
@@ -91,7 +91,7 @@ public class ChatPage extends JFrame {
 
         // 버튼 생성
         JButton btnSend = new JButton(sendIcon);
-        btnSend.setBounds(507, 295, 54, 54);  // 버튼 위치 및 크기 조정
+        btnSend.setBounds(757, 295, 54, 54);  // 버튼 위치 및 크기 조정
         btnSend.setContentAreaFilled(false);  // 버튼 배경을 투명으로 설정
         btnSend.setBorderPainted(false);  // 버튼 테두리 없애기
         btnSend.setFocusPainted(false);  // 버튼 클릭 시 테두리 효과 없애기
