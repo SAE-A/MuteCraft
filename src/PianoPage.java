@@ -10,14 +10,12 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 
 public class PianoPage extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
-
+    
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -43,6 +41,7 @@ public class PianoPage extends JFrame {
         setTitle("Piano");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 852, 393);
+        
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -60,6 +59,7 @@ public class PianoPage extends JFrame {
         ImageIcon button_stop = new ImageIcon(getClass().getResource("/img/button_stop.png"));
         ImageIcon button_record = new ImageIcon(getClass().getResource("/img/button_record.png"));
         ImageIcon metronome = new ImageIcon(getClass().getResource("/img/metronome.png"));
+        JButton passbtn = new JButton("Pass");
         ImageIcon button_add = new ImageIcon(getClass().getResource("/img/button_add.png"));
 
         JButton backbtn = new JButton("");
@@ -88,6 +88,7 @@ public class PianoPage extends JFrame {
         // 오른쪽 패널
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.add(passbtn);
         rightPanel.add(addbtn);
 
         // 이미지 버튼 설정
@@ -102,24 +103,52 @@ public class PianoPage extends JFrame {
         playbtn.setBorderPainted(false);
         playbtn.setFocusPainted(false);
         playbtn.setPreferredSize(new Dimension(50, 50));
+        playbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                playRecordedSound();
+            }
+        });
 
         stopbtn.setIcon(resizeIcon(button_stop, 25, 25));
         stopbtn.setContentAreaFilled(false);
         stopbtn.setBorderPainted(false);
         stopbtn.setFocusPainted(false);
         stopbtn.setPreferredSize(new Dimension(50, 50));
+        stopbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stopRecording();
+            }
+        });
 
         recordbtn.setIcon(resizeIcon(button_record, 25, 25));
         recordbtn.setContentAreaFilled(false);
         recordbtn.setBorderPainted(false);
         recordbtn.setFocusPainted(false);
         recordbtn.setPreferredSize(new Dimension(50, 50));
+        recordbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	startRecording();  // 녹음 시작
+            }
+        });
 
         metronomebtn.setIcon(resizeIcon(metronome, 25, 25));
         metronomebtn.setContentAreaFilled(false);
         metronomebtn.setBorderPainted(false);
         metronomebtn.setFocusPainted(false);
         metronomebtn.setPreferredSize(new Dimension(50, 50));
+        
+        passbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Pass 버튼 클릭!");
+                Mixing mixing = new Mixing();
+                // mixing.setAudioFilePath("src/resources/lydfiler/audio/record_piano.wav");
+                mixing.setVisible(true);
+            }
+        });
 
         addbtn.setIcon(resizeIcon(button_add, 25, 25));
         addbtn.setContentAreaFilled(false);
@@ -378,41 +407,114 @@ public class PianoPage extends JFrame {
                 343);
         panel_keyboard.add(label);
     }
+    
+    private boolean isRecording = false; // 녹음 상태 확인용
 
-    private void playSound(String soundFile) {
+    private TargetDataLine targetLine;
+
+    public void startRecording() {
+        if (isRecording) {
+            System.out.println("이미 녹음 중입니다.");
+            return;
+        }
+
+        isRecording = true;
+
+        new Thread(() -> {
+            try {
+                AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
+                DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+                if (!AudioSystem.isLineSupported(info)) {
+                    System.err.println("오디오 라인이 지원되지 않습니다.");
+                    return;
+                }
+
+                targetLine = (TargetDataLine) AudioSystem.getLine(info);
+                targetLine.open(format);
+                targetLine.start();
+
+                File outputDir = new File("src/resources/lydfiler/audio");
+                if (!outputDir.exists()) {
+                    outputDir.mkdirs();
+                }
+
+                File outputFile = new File(outputDir, "record_piano.wav");
+
+                AudioInputStream audioStream = new AudioInputStream(targetLine);
+
+                System.out.println("녹음 중... 저장 위치: " + outputFile.getAbsolutePath());
+                AudioSystem.write(audioStream, AudioFileFormat.Type.WAVE, outputFile);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                isRecording = false;
+                System.out.println("녹음 완료.");
+            }
+        }).start();
+    }
+
+    public void stopRecording() {
+        if (!isRecording || targetLine == null) {
+            System.out.println("녹음이 진행 중이 아닙니다.");
+            return;
+        }
+
+        targetLine.stop(); // 녹음 중지
+        targetLine.close(); // 리소스 해제
+        targetLine = null;
+        isRecording = false;
+        System.out.println("녹음 종료.");
+        
+        File outputFile = new File("src/resources/lydfiler/audio/record_piano.wav");
+        if (outputFile.exists()) {
+            System.out.println("파일 저장 성공: " + outputFile.getAbsolutePath());
+        } else {
+            System.out.println("파일 저장 실패.");
+        }
+        
+    }
+
+    private void playRecordedSound() {
+        File audioFile = new File("src/resources/lydfiler/audio/record_piano.wav");
+
+        // 파일이 존재하는지 확인
+        if (!audioFile.exists()) {
+            System.out.println("파일이 존재하지 않습니다: " + audioFile.getAbsolutePath());
+            return;
+        }
+
         try {
-            // 상대 경로로 음원 파일을 찾는다
-            File audioFile = new File("src/resources/lydfiler/audio/" + soundFile);  // 상대경로로 수정
-
-            System.out.println("파일 경로: " + audioFile.getAbsolutePath());
-
-            // 오디오 입력 스트림 생성
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-
-            // Clip 객체 생성 (재생을 위한 객체)
             Clip audioClip = AudioSystem.getClip();
-
-            // 오디오 스트림을 Clip 객체에 연결
             audioClip.open(audioStream);
-
-            // 오디오 재생
             audioClip.start();
-
-            // 음원이 끝날 때까지 대기
-            Thread.sleep(audioClip.getMicrosecondLength() / 1000);  // 밀리초 단위로 대기
-
-        } catch (UnsupportedAudioFileException e) {
-            System.err.println("지원하지 않는 오디오 파일 형식입니다.");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("파일을 읽는 중 문제가 발생했습니다.");
-            e.printStackTrace();
-        } catch (LineUnavailableException e) {
-            System.err.println("라인이 사용할 수 없습니다.");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            System.err.println("재생 대기 중 인터럽트가 발생했습니다.");
+            Thread.sleep(audioClip.getMicrosecondLength() / 1000);  // 재생이 끝날 때까지 대기
+            audioClip.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    private void playSound(String soundFile) {
+        try {
+        	File audioFile = new File("src/resources/lydfiler/audio/" + soundFile); 
+        	 
+            // 파일이 존재하는지 확인
+            if (!audioFile.exists()) {
+                System.out.println("파일이 존재하지 않습니다: " + soundFile);
+                return;
+            }
+            
+            // 오디오 파일을 읽어서 클립을 생성하고 재생
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip audioClip = AudioSystem.getClip();
+            audioClip.open(audioStream);
+            audioClip.start();
+            Thread.sleep(audioClip.getMicrosecondLength() / 1000);  // 재생이 끝날 때까지 대기
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }    
 }

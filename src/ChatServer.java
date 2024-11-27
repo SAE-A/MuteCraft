@@ -173,13 +173,14 @@ public class ChatServer extends JFrame {
                 AppendText("사용자 퇴장. 현재 참가자 수 " + UserVec.size());
             }
         }
-
-
-        //모든 다중 클라이언트에게 순차적으로 채팅 메시지 전달
-        public void WriteAll(String str) {
+        
+        // 모든 클라이언트에게 메시지 전달, 단 자신은 제외
+        public void WriteAll(String str, UserService sender) {
             for (int i = 0; i < user_vc.size(); i++) {
-                UserService user = user_vc.get(i);     // get(i) 메소드는 user_vc 컬렉션의 i번째 요소를 반환
-                user.WriteOne(str);
+                UserService user = user_vc.get(i);
+                if (user != sender) { // 메시지를 보낸 클라이언트는 제외
+                    user.WriteOne(str);
+                }
             }
         }
 
@@ -187,26 +188,25 @@ public class ChatServer extends JFrame {
         public void run() {
             while (true) {
                 try {
-                    String msg = dis.readUTF();  // 메시지를 받으려고 시도
-                    msg = msg.trim();   // 앞뒤 공백 제거
-                    AppendText(msg);    // 서버에 수신된 메시지 출력
-                    WriteAll(msg + "\n");  // 모든 클라이언트에게 메시지 전송
+                    String msg = dis.readUTF(); // 메시지 수신
+                    msg = msg.trim();           // 공백 제거
+                    AppendText(msg);            // 서버 콘솔에 출력
+                    WriteAll(msg + "\n", this); // 다른 클라이언트들에게만 전송
                 } catch (IOException e) {
                     AppendText("dis.readUTF() error: " + e.getMessage());
                     try {
                         dos.close();
                         dis.close();
                         client_socket.close();
-                        UserVec.removeElement(this); // 현재 클라이언트 제거
-                        AppendText("사용자 퇴장. 남은 참가자 수 " + UserVec.size());
-                        break;  // 루프 종료
+                        user_vc.removeElement(this); // 현재 클라이언트 제거
+                        AppendText("사용자 퇴장. 남은 참가자 수 " + user_vc.size());
+                        break;
                     } catch (Exception ee) {
                         AppendText("에러 발생 시 클라이언트 처리 실패: " + ee.getMessage());
-                        break;  // 루프 종료
+                        break;
                     }
                 }
             }
         }
-
     }
 }
