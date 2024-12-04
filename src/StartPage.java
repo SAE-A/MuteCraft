@@ -20,7 +20,7 @@ public class StartPage {
         // 이미지 불러오기 (src 폴더 내 img/logo.png)
         ImageIcon logoIcon = new ImageIcon(getClass().getResource("/img/logo.jpg"));
         Image img = logoIcon.getImage();  // Image로 변환
-        Image resizedImg = img.getScaledInstance(400, 400, Image.SCALE_SMOOTH);  // 400x400으로 크기 조정
+        Image resizedImg = img.getScaledInstance(300, 300, Image.SCALE_SMOOTH);  // 크기 조정
         logoIcon = new ImageIcon(resizedImg);  // 다시 ImageIcon으로 변환
 
         // 이미지 아이콘을 JLabel로 설정
@@ -30,6 +30,34 @@ public class StartPage {
 
         // JPanel에 JLabel 추가
         panel.add(logoLabel, BorderLayout.CENTER);
+
+        // 버튼 패널 생성
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));  // 버튼 중앙 정렬
+        buttonPanel.setBackground(Color.WHITE);  // 버튼 패널 배경색 설정
+
+        // 버튼 생성
+        JButton button1 = new JButton("SOLO");
+        JButton button2 = new JButton("TEAM");
+        
+        button1.setFocusPainted(false);  // 버튼 선택 시 생기는 테두리 제거
+        button1.setContentAreaFilled(false);  // 배경 제거
+        button1.setBorderPainted(false);  // 테두리 제거
+        button1.setOpaque(false);  // 불투명 상태 해제
+        button1.setFont(new Font("Arial", Font.BOLD, 20));
+        
+        button2.setFocusPainted(false);
+        button2.setContentAreaFilled(false);
+        button2.setBorderPainted(false);
+        button2.setOpaque(false);
+        button2.setFont(new Font("Arial", Font.BOLD, 20));
+        
+        // 버튼 패널에 버튼 추가
+        buttonPanel.add(button1);
+        buttonPanel.add(button2);
+
+        // 버튼 패널을 메인 패널의 SOUTH에 추가
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         // JFrame에 JPanel 추가
         frame.add(panel);
