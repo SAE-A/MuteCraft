@@ -1,21 +1,9 @@
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import java.awt.*;
 import java.io.File;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.sound.sampled.*;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.util.ArrayList;
 
 public class Mixing extends JFrame {
 
@@ -26,6 +14,11 @@ public class Mixing extends JFrame {
     private String audioFile1 = "src/resources/lydfiler/audio/record_piano.wav";
     private String audioFile2 = "src/resources/lydfiler/audio/record_acoustic.wav";
     private String audioFile3 = "src/resources/lydfiler/audio/record_electric.wav";
+
+    // 각 이미지 레이블을 저장할 리스트
+    private ArrayList<JLabel> imageLabels = new ArrayList<>();
+    // 각 버튼의 이미지 상태를 추적할 배열 (true -> clickedSoundWave.png, false -> soundWave.png)
+    private boolean[] imageStates = {false, false, false};
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
@@ -65,6 +58,9 @@ public class Mixing extends JFrame {
             new Thread(() -> playAudio(audioFile1)).start();
             new Thread(() -> playAudio(audioFile2)).start();
             new Thread(() -> playAudio(audioFile3)).start();
+
+            // "Play All" 버튼을 눌렀을 때 모든 이미지를 토글
+            toggleAllImages();  // 세 개의 이미지 상태 토글
         });
 
         // 가운데 정렬을 위해 버튼을 centerPanel에 추가
@@ -82,67 +78,14 @@ public class Mixing extends JFrame {
         // 상단에 간격 추가
         leftPanel2.add(Box.createVerticalStrut(10));  // 위쪽 여백 추가
         
-        // 이미지 아이콘 로드
-        ImageIcon button_piano = new ImageIcon(getClass().getResource("/img/piano.png"));
-        Image img1 = button_piano.getImage();
-        Image resizedImg1 = img1.getScaledInstance(70, 70, Image.SCALE_SMOOTH);  // 크기 조정
-        button_piano = new ImageIcon(resizedImg1);
-        
-        // 첫 번째 오디오 재생 버튼
-        JButton playAudio1Button = new JButton(button_piano);
-        playAudio1Button.setContentAreaFilled(false);
-        playAudio1Button.setBorderPainted(false);
-        playAudio1Button.setFocusPainted(false);
-        
-        // 악기 이름
-        playAudio1Button.setText("piano");
-        playAudio1Button.setVerticalTextPosition(SwingConstants.BOTTOM); // 텍스트를 버튼의 아래쪽에 위치시키기
-        playAudio1Button.setHorizontalTextPosition(SwingConstants.CENTER); // 텍스트를 버튼의 가운데에 위치시키기
+        // 첫 번째 오디오 재생 버튼과 사각형
+        leftPanel2.add(createButtonWithRectangle("/img/piano.png", "piano", audioFile1, 0));
 
-        playAudio1Button.addActionListener(e -> playAudio(audioFile1));
-        leftPanel2.add(playAudio1Button);
+        // 두 번째 오디오 재생 버튼과 사각형
+        leftPanel2.add(createButtonWithRectangle("/img/acousticGuitar.png", "acoustic", audioFile2, 1));
 
-        
-        // 이미지 아이콘 로드
-        ImageIcon button_acoustic_guitar = new ImageIcon(getClass().getResource("/img/acousticGuitar.png"));
-        Image img2 = button_acoustic_guitar.getImage();
-        Image resizedImg2 = img2.getScaledInstance(60, 60, Image.SCALE_SMOOTH);  // 크기 조정
-        button_acoustic_guitar = new ImageIcon(resizedImg2);
-        
-        // 두 번째 오디오 재생 버튼
-        JButton playAudio2Button = new JButton(button_acoustic_guitar);
-        playAudio2Button.setContentAreaFilled(false);
-        playAudio2Button.setBorderPainted(false);
-        playAudio2Button.setFocusPainted(false);
-        
-        // 악기 이름
-        playAudio2Button.setText("acoustic");
-        playAudio2Button.setVerticalTextPosition(SwingConstants.BOTTOM); // 텍스트를 버튼의 아래쪽에 위치시키기
-        playAudio2Button.setHorizontalTextPosition(SwingConstants.CENTER); // 텍스트를 버튼의 가운데에 위치시키기
-
-        playAudio2Button.addActionListener(e -> playAudio(audioFile2));
-        leftPanel2.add(playAudio2Button);
-
-        
-        // 이미지 아이콘 로드
-        ImageIcon button_electric_guitar = new ImageIcon(getClass().getResource("/img/electricGuitar.png"));
-        Image img3 = button_electric_guitar.getImage();
-        Image resizedImg3 = img3.getScaledInstance(70, 70, Image.SCALE_SMOOTH);  // 크기 조정
-        button_electric_guitar = new ImageIcon(resizedImg3);
-        
-        // 세 번째 오디오 재생 버튼
-        JButton playAudio3Button = new JButton(button_electric_guitar);
-        playAudio3Button.setContentAreaFilled(false);
-        playAudio3Button.setBorderPainted(false);
-        playAudio3Button.setFocusPainted(false);
-        
-        // 악기 이름
-        playAudio3Button.setText("electric");
-        playAudio3Button.setVerticalTextPosition(SwingConstants.BOTTOM); // 텍스트를 버튼의 아래쪽에 위치시키기
-        playAudio3Button.setHorizontalTextPosition(SwingConstants.CENTER); // 텍스트를 버튼의 가운데에 위치시키기
-
-        playAudio3Button.addActionListener(e -> playAudio(audioFile3));
-        leftPanel2.add(playAudio3Button);
+        // 세 번째 오디오 재생 버튼과 사각형
+        leftPanel2.add(createButtonWithRectangle("/img/electricGuitar.png", "electric", audioFile3, 2));
     }
 
     // 오디오 재생 메서드
@@ -166,6 +109,87 @@ public class Mixing extends JFrame {
             System.out.println("재생 완료: " + filePath);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private JPanel createButtonWithRectangle(String imagePath, String text, String audioFile, int index) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+
+        // 이미지 아이콘 로드 (버튼용 이미지)
+        ImageIcon buttonIcon = new ImageIcon(getClass().getResource(imagePath));
+        Image img = buttonIcon.getImage();
+        Image resizedImg = img.getScaledInstance(70, 70, Image.SCALE_SMOOTH);  // 크기 조정
+        buttonIcon = new ImageIcon(resizedImg);
+
+        // 오디오 재생 버튼
+        JButton playButton = new JButton(buttonIcon);
+        playButton.setContentAreaFilled(false);
+        playButton.setBorderPainted(false);
+        playButton.setFocusPainted(false);
+        playButton.setText(text);
+        playButton.setVerticalTextPosition(SwingConstants.BOTTOM); // 텍스트를 버튼의 아래쪽에 위치시키기
+        playButton.setHorizontalTextPosition(SwingConstants.CENTER); // 텍스트를 버튼의 가운데에 위치시키기
+        playButton.addActionListener(e -> {
+            // 오디오 파일 재생
+            playAudio(audioFile);
+            // 이미지 변경
+            toggleImage(index);  // 이미지 토글
+            System.out.println("click!");
+        });
+
+        // 이미지 아이콘 로드 (사각형 위에 표시할 이미지)
+        ImageIcon imageIcon = new ImageIcon(getClass().getResource("/img/soundWave.png"));
+        Image image = imageIcon.getImage();
+        Image resizedImage = image.getScaledInstance(700, 50, Image.SCALE_SMOOTH);  // 크기 조정
+        imageIcon = new ImageIcon(resizedImage);
+
+        // 이미지 표시용 JLabel 생성
+        JLabel imageLabel = new JLabel(imageIcon);
+        imageLabels.add(imageLabel);  // 해당 이미지 레이블을 리스트에 저장
+
+        // 패널에 버튼과 이미지 추가
+        panel.add(playButton);
+        panel.add(imageLabel);
+
+        return panel;
+    }
+
+    // 이미지를 토글하는 메서드
+    private void toggleImage(int index) {
+        // 이미지 상태에 따라 토글
+        if (imageStates[index]) {
+            // 원본 이미지로 변경
+            changeImage(index, "/img/soundWave.png");
+        } else {
+            // soundWave.png로 변경
+            changeImage(index, "/img/clickedSoundWave.png");
+        }
+        // 상태 반전
+        imageStates[index] = !imageStates[index];
+    }
+
+    // 이미지를 변경하는 메서드
+    private void changeImage(int index, String imagePath) {
+        ImageIcon newIcon = new ImageIcon(getClass().getResource(imagePath));
+        Image image = newIcon.getImage();
+        Image resizedImage = image.getScaledInstance(700, 50, Image.SCALE_SMOOTH);  // 크기 조정
+        newIcon = new ImageIcon(resizedImage);
+        imageLabels.get(index).setIcon(newIcon);  // 해당 인덱스의 JLabel에 새 아이콘 설정
+    }
+
+    // "Play All" 버튼을 눌렀을 때 세 개의 이미지 상태 토글
+    private void toggleAllImages() {
+        for (int i = 0; i < imageStates.length; i++) {
+            if (imageStates[i]) {
+                // 원본 이미지로 변경
+                changeImage(i, "/img/soundWave.png");
+            } else {
+                // soundWave.png로 변경
+                changeImage(i, "/img/clickedSoundWave.png");
+            }
+            // 상태 반전
+            imageStates[i] = !imageStates[i];
         }
     }
 }
