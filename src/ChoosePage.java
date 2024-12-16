@@ -10,15 +10,40 @@ public class ChoosePage extends JFrame {
         setTitle("Choose Instrument");
         setBounds(100, 100, 852, 393); // 창 위치 및 크기 설정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridBagLayout()); // GridBagLayout 사용
+        setLayout(new BorderLayout()); // BorderLayout 사용 (전체 프레임에 배치)
 
         // 배경색 설정
         getContentPane().setBackground(Color.WHITE); // 하얀색 배경
 
-        // GridBagConstraints 설정
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(20, 20, 20, 20); // 버튼 간의 여백 설정
-        gbc.anchor = GridBagConstraints.CENTER; // 버튼을 중앙에 위치
+        // 채팅창 버튼 추가 (오른쪽 끝에 위치)
+        JPanel chatPanel = new JPanel(); // 새로운 JPanel 생성
+        chatPanel.setBackground(Color.WHITE);
+        chatPanel.setLayout(new FlowLayout(FlowLayout.RIGHT)); // 오른쪽 정렬
+
+        JButton chatButton = new JButton();
+        ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
+        chatButton.setIcon(updateImageSize(chatIcon, 50, 50)); // 크기 조정
+        chatButton.setContentAreaFilled(false);
+        chatButton.setBorderPainted(false);
+        chatButton.setFocusPainted(false);
+        chatButton.addActionListener(new ActionListener() {
+            @Override  // ChatServer 먼저 실행!!
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Chat button clicked!");  // 디버깅
+                //setVisible(false);  // ChoosePage 창 숨기기
+                ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
+                chatClient.setVisible(true);  // ChatClient 창 띄우기
+            }
+        });
+        
+        // 채팅 버튼 부분 사이즈 조정
+        chatButton.setPreferredSize(new Dimension(100, 40));
+
+        // 채팅 버튼을 JPanel에 추가
+        chatPanel.add(chatButton);
+
+        // 채팅 버튼을 프레임 상단에 오른쪽에 배치
+        add(chatPanel, BorderLayout.NORTH);
 
         // 피아노 버튼
         JButton pianoButton = createButton("/img/piano2.png", "Piano");
@@ -28,9 +53,7 @@ public class ChoosePage extends JFrame {
                 new PianoPage(); // PianoPage.java 실행
             }
         });
-        gbc.gridx = 0; // 첫 번째 열
-        gbc.gridy = 0; // 첫 번째 행
-        add(pianoButton, gbc);
+        add(pianoButton, BorderLayout.WEST); // 피아노 버튼은 왼쪽에 배치
 
         // 어쿠스틱 기타 버튼
         JButton acousticGuitarButton = createButton("/img/acousticguitar.png", "Acoustic Guitar");
@@ -40,9 +63,7 @@ public class ChoosePage extends JFrame {
                 new AcousticPage(); // AcousticPage.java 실행
             }
         });
-        gbc.gridx = 1; // 두 번째 열
-        gbc.gridy = 0; // 첫 번째 행
-        add(acousticGuitarButton, gbc);
+        add(acousticGuitarButton, BorderLayout.CENTER); // 가운데 배치
 
         // 일렉기타 버튼
         JButton electricGuitarButton = createButton("/img/electricguitar.png", "Electric Guitar");
@@ -52,25 +73,7 @@ public class ChoosePage extends JFrame {
                 new ElectricPage(); // ElectricPage.java 실행
             }
         });
-        gbc.gridx = 2; // 세 번째 열
-        gbc.gridy = 0; // 첫 번째 행
-        add(electricGuitarButton, gbc);
-
-        // 채팅창 버튼 추가
-        JButton chatButton = new JButton();
-        ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
-        chatButton.setIcon(updateImageSize(chatIcon, 50, 50)); // 크기 조정
-        chatButton.setContentAreaFilled(false);
-        chatButton.setBorderPainted(false);
-        chatButton.setFocusPainted(false);
-        chatButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ChatClient();
-            }
-        });
-
-        //위치는 맨 위
+        add(electricGuitarButton, BorderLayout.EAST); // 일렉기타 버튼은 오른쪽에 배치
 
         // 창 표시
         setVisible(true);
