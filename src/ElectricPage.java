@@ -22,7 +22,7 @@ public class ElectricPage extends JFrame {
     public ElectricPage() {
         // JFrame 기본 설정
         setTitle("Acoustic Guitar");
-        setBounds(100, 100, 867, 393); // 창 위치 및 크기 설정
+        setBounds(100, 100, 852, 393); // 창 위치 및 크기 설정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // 컨테이너 설정

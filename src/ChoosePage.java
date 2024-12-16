@@ -8,7 +8,7 @@ public class ChoosePage extends JFrame {
     public ChoosePage() {
         // JFrame 기본 설정
         setTitle("Choose Instrument");
-        setBounds(100, 100, 867, 393); // 창 위치 및 크기 설정
+        setBounds(100, 100, 852, 393); // 창 위치 및 크기 설정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridBagLayout()); // GridBagLayout 사용
 
@@ -25,7 +25,7 @@ public class ChoosePage extends JFrame {
         pianoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new PianoPage2(); // PianoPage.java 실행
+                new PianoPage(); // PianoPage.java 실행
             }
         });
         gbc.gridx = 0; // 첫 번째 열
@@ -55,6 +55,22 @@ public class ChoosePage extends JFrame {
         gbc.gridx = 2; // 세 번째 열
         gbc.gridy = 0; // 첫 번째 행
         add(electricGuitarButton, gbc);
+
+        // 채팅창 버튼 추가
+        JButton chatButton = new JButton();
+        ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
+        chatButton.setIcon(updateImageSize(chatIcon, 50, 50)); // 크기 조정
+        chatButton.setContentAreaFilled(false);
+        chatButton.setBorderPainted(false);
+        chatButton.setFocusPainted(false);
+        chatButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ChatClient();
+            }
+        });
+
+        //위치는 맨 위
 
         // 창 표시
         setVisible(true);

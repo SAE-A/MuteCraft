@@ -23,7 +23,7 @@ public class AcousticPage extends JFrame {
     public AcousticPage() {
         // JFrame 기본 설정
         setTitle("Acoustic Guitar");
-        setBounds(100, 100, 867, 393); // 창 위치 및 크기 설정
+        setBounds(100, 100, 852, 393); // 창 위치 및 크기 설정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // 컨테이너 설정
@@ -296,6 +296,7 @@ public class AcousticPage extends JFrame {
     }
     
     private void playRecordedSound() {
+    	System.out.println("어쿠스틱 기타 재생");
         File audioFile = new File("src/resources/lydfiler/audio/record_acoustic.wav");
 
         // 파일이 존재하는지 확인
@@ -333,12 +334,7 @@ public class AcousticPage extends JFrame {
             audioClip.open(audioStream);
             audioClip.start();
 
-            // 비동기로 재생 (대기하지 않음)
-            audioClip.addLineListener(event -> {
-                if (event.getType() == javax.sound.sampled.LineEvent.Type.STOP) {
-                    audioClip.close();
-                }
-            });
+            Thread.sleep(audioClip.getMicrosecondLength() / 1000);  // 재생이 끝날 때까지 대기
         } catch (Exception e) {
             e.printStackTrace();
         }

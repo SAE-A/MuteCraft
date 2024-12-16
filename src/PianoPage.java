@@ -54,6 +54,7 @@ public class PianoPage extends JFrame {
 
         // panel_buttons (버튼을 담을 패널)
         JPanel panel_buttons = new JPanel();
+        panel_buttons.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         panel_buttons.setBounds(0, 0, 852, 50);
         panel_buttons.setLayout(new BorderLayout());
 
@@ -73,13 +74,15 @@ public class PianoPage extends JFrame {
 
         // 왼쪽 패널
         JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         leftPanel.add(backbtn);
         leftPanel.add(leftLabel);
 
         // 중앙 패널
         JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 10));
+        centerPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
+        centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 2));
         JButton playbtn = new JButton("");
         JButton stopbtn = new JButton("");
         JButton recordbtn = new JButton("");
@@ -91,6 +94,7 @@ public class PianoPage extends JFrame {
 
         // 오른쪽 패널
         JPanel rightPanel = new JPanel();
+        rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
 
@@ -446,9 +450,10 @@ public class PianoPage extends JFrame {
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
         JLabel label = new JLabel(scaledIcon);
-        label.setBounds(0, 0, 852,
-                343);
+        label.setBounds(0, 0, 852, 343);
         panel_keyboard.add(label);
+        
+        setVisible(true);
     }
     
     private boolean isRecording = false; // 녹음 상태 확인용
@@ -560,7 +565,7 @@ public class PianoPage extends JFrame {
         }
 
     }    
-    
+  
     private void toggleMetronome() {
         // 현재 메트로놈 상태 확인
         if (isMetronomePlaying) {
