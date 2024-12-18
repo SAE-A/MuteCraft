@@ -22,28 +22,28 @@ public class ChoosePage extends JFrame {
 
         JButton chatButton = new JButton();
         ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
-        chatButton.setIcon(updateImageSize(chatIcon, 50, 50)); // 크기 조정
+        chatButton.setIcon(updateImageSize(chatIcon, 30, 30)); // 크기 조정
         chatButton.setContentAreaFilled(false);
         chatButton.setBorderPainted(false);
         chatButton.setFocusPainted(false);
         chatButton.addActionListener(new ActionListener() {
-            @Override  // ChatServer 먼저 실행!!
+            @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Chat button clicked!");  // 디버깅
-                //setVisible(false);  // ChoosePage 창 숨기기
                 ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
                 chatClient.setVisible(true);  // ChatClient 창 띄우기
             }
         });
-        
-        // 채팅 버튼 부분 사이즈 조정
-        chatButton.setPreferredSize(new Dimension(100, 40));
 
-        // 채팅 버튼을 JPanel에 추가
+        // 채팅 버튼
+        chatButton.setPreferredSize(new Dimension(40, 40));
         chatPanel.add(chatButton);
-
-        // 채팅 버튼을 프레임 상단에 오른쪽에 배치
         add(chatPanel, BorderLayout.NORTH);
+
+        // 버튼 패널
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 
         // 피아노 버튼
         JButton pianoButton = createButton("/img/piano2.png", "Piano");
@@ -53,27 +53,35 @@ public class ChoosePage extends JFrame {
                 new PianoPage(); // PianoPage.java 실행
             }
         });
-        add(pianoButton, BorderLayout.WEST); // 피아노 버튼은 왼쪽에 배치
 
         // 어쿠스틱 기타 버튼
-        JButton acousticGuitarButton = createButton("/img/acousticguitar.png", "Acoustic Guitar");
+        JButton acousticGuitarButton = createButton("/img/acousticGuitar.png", "Acoustic Guitar");
         acousticGuitarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new AcousticPage(); // AcousticPage.java 실행
             }
         });
-        add(acousticGuitarButton, BorderLayout.CENTER); // 가운데 배치
 
         // 일렉기타 버튼
-        JButton electricGuitarButton = createButton("/img/electricguitar.png", "Electric Guitar");
+        JButton electricGuitarButton = createButton("/img/electricGuitar.png", "Electric Guitar");
         electricGuitarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new ElectricPage(); // ElectricPage.java 실행
             }
         });
-        add(electricGuitarButton, BorderLayout.EAST); // 일렉기타 버튼은 오른쪽에 배치
+
+        // 버튼 패널에 버튼과 간격 추가
+        buttonPanel.add(Box.createHorizontalGlue()); // 왼쪽 여백
+        buttonPanel.add(pianoButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(20, 0))); // 버튼 간격
+        buttonPanel.add(acousticGuitarButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(20, 0))); // 버튼 간격
+        buttonPanel.add(electricGuitarButton);
+        buttonPanel.add(Box.createHorizontalGlue()); // 오른쪽 여백
+
+        add(buttonPanel, BorderLayout.CENTER); // 가운데 배치
 
         // 창 표시
         setVisible(true);

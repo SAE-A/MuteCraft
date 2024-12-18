@@ -1,56 +1,46 @@
 import java.awt.*;
 import javax.sound.sampled.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.io.SequenceInputStream;
+import java.util.ArrayList;
 
 public class PianoPage extends JFrame {
+    private boolean isRecording = false; // 녹음 상태 확인용
 	private boolean isMetronomePlaying = false; // 메트로놈 재생 상태
     private Clip metronomeClip; // 메트로놈 오디오 클립
     private JComboBox<String> metronomeSelector; // BPM 선택 드롭다운
     private JButton metronomebtn; // 메트로놈 버튼
-
-    private static final long serialVersionUID = 1L;
+    private File recordedFile = null; // 녹음 파일
+    private AudioFormat audioFormat; // 오디오 포맷
+    private ByteArrayOutputStream audioStream; // 오디오 데이터 저장
+    private TargetDataLine targetLine; // 녹음 장치
+    private ArrayList<File> codeFiles = new ArrayList<>(); // 코드 음원 파일 목록
     private JPanel contentPane;
-    
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    PianoPage frame = new PianoPage();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    // 이미지 아이콘 리사이즈 메서드
-    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
-        Image img = icon.getImage();
-        Image resizedImage = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        return new ImageIcon(resizedImage);
-    }
 
     public PianoPage() {
-        setType(Type.UTILITY);
         setTitle("Piano");
+        setBounds(100, 100, 868, 393);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 852, 393);
         
-        contentPane = new JPanel();
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        setContentPane(contentPane);
+        // 컨테이너 설정
+        Container contentPane = getContentPane();
         contentPane.setLayout(null);
+        contentPane.setBackground(Color.WHITE);
 
         // panel_buttons (버튼을 담을 패널)
         JPanel panel_buttons = new JPanel();
@@ -70,7 +60,7 @@ public class PianoPage extends JFrame {
         JButton backbtn = new JButton("");
         JButton addbtn = new JButton("");
         JLabel leftLabel = new JLabel("Piano");
-        leftLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+        leftLabel.setFont(new Font("Arial", Font.BOLD, 20));
 
         // 왼쪽 패널
         JPanel leftPanel = new JPanel();
@@ -103,7 +93,7 @@ public class PianoPage extends JFrame {
         backbtn.setContentAreaFilled(false);
         backbtn.setBorderPainted(false);
         backbtn.setFocusPainted(false);
-        backbtn.setPreferredSize(new Dimension(50, 50));
+        backbtn.setPreferredSize(new Dimension(40, 40));
 
         playbtn.setIcon(resizeIcon(button_play, 25, 25));
         playbtn.setContentAreaFilled(false);
@@ -146,9 +136,10 @@ public class PianoPage extends JFrame {
         metronomebtn.setBorderPainted(false);
         metronomebtn.setFocusPainted(false);
         metronomebtn.setPreferredSize(new Dimension(50, 50));
+        customizeButton(metronomebtn);
 
         metronomeSelector = new JComboBox<>(new String[]{"none", "60bpm", "80bpm", "100bpm", "120bpm"});
-        metronomeSelector.setPreferredSize(new Dimension(100, 25));
+        customizeComboBox(metronomeSelector);
         metronomeSelector.setVisible(false); // 초기에는 숨김 상태
         centerPanel.add(metronomeSelector);
 
@@ -191,7 +182,7 @@ public class PianoPage extends JFrame {
         addbtn.setContentAreaFilled(false);
         addbtn.setBorderPainted(false);
         addbtn.setFocusPainted(false);
-        addbtn.setPreferredSize(new Dimension(50, 50));
+        addbtn.setPreferredSize(new Dimension(40, 40));
         
         addbtn.addActionListener(new ActionListener() {
             @Override
@@ -203,13 +194,11 @@ public class PianoPage extends JFrame {
             }
         });
 
-        // 패널에 추가
         panel_buttons.add(leftPanel, BorderLayout.WEST);
         panel_buttons.add(centerPanel, BorderLayout.CENTER);
         panel_buttons.add(rightPanel, BorderLayout.EAST);
         contentPane.add(panel_buttons);
 
-        // panel_notes (버튼을 담을 패널)
         JPanel panel_notes_white = new JPanel();
         panel_notes_white.setBounds(0, 260, 852, 100); // 윈도우의 세로 260부터 시작, 패널 높이를 100으로 설정 (버튼 간 세로 간격을 충분히 띄우기 위해 높이를 늘림)
         panel_notes_white.setLayout(new GridLayout(2, 14, 10, 7));  // 14개의 버튼, 2줄로 배치, 간격 설정
@@ -290,7 +279,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_c_sharp02 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("c#2.wav");
             }
         });
@@ -306,7 +294,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_e_flat02 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("eb2.wav");
             }
         });
@@ -322,7 +309,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_f_sharp02 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("f#2.wav");
             }
         });
@@ -338,7 +324,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_a_flat02 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("ab2.wav");
             }
         });
@@ -354,7 +339,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_b_flat02 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("bb2.wav");
             }
         });
@@ -370,7 +354,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_c_sharp03 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("c#3.wav");
             }
         });
@@ -386,7 +369,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_e_flat03 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("eb3.wav");
             }
         });
@@ -402,7 +384,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_f_sharp03 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("f#3.wav");
             }
         });
@@ -418,7 +399,6 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_a_flat03 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("ab3.wav");
             }
         });
@@ -434,13 +414,10 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("btn_b_flat03 버튼클릭!"); // 버튼 번호 출력
-                // 버튼 클릭 시 playSound 함수 실행
                 playSound("bb3.wav");
             }
         });
 
-
-        // panel_keyboard (배경 이미지용 패널)
         JPanel panel_keyboard = new JPanel();
         panel_keyboard.setBounds(0, 50, 852, 343);
         contentPane.add(panel_keyboard);
@@ -455,90 +432,133 @@ public class PianoPage extends JFrame {
         
         setVisible(true);
     }
+
+    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
+        Image img = icon.getImage();
+        Image resizedImage = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(resizedImage);
+    }
     
-    private boolean isRecording = false; // 녹음 상태 확인용
-
-    private TargetDataLine targetLine;
-
     public void startRecording() {
-        if (isRecording) {
-            System.out.println("이미 녹음 중입니다.");
-            return;
-        }
+        try {
+            audioFormat = new AudioFormat(44100.0f, 16, 1, true, true);
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
 
-        isRecording = true;
-
-        new Thread(() -> {
-            try {
-                AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
-                DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-                if (!AudioSystem.isLineSupported(info)) {
-                    System.err.println("오디오 라인이 지원되지 않습니다.");
-                    return;
-                }
-
-                targetLine = (TargetDataLine) AudioSystem.getLine(info);
-                targetLine.open(format);
-                targetLine.start();
-
-                File outputDir = new File("src/resources/lydfiler/audio");
-                if (!outputDir.exists()) {
-                    outputDir.mkdirs();
-                }
-
-                File outputFile = new File(outputDir, "record_piano.wav");
-
-                AudioInputStream audioStream = new AudioInputStream(targetLine);
-
-                System.out.println("녹음 중... 저장 위치: " + outputFile.getAbsolutePath());
-                AudioSystem.write(audioStream, AudioFileFormat.Type.WAVE, outputFile);
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } finally {
-                isRecording = false;
-                System.out.println("녹음 완료.");
+            if (!AudioSystem.isLineSupported(info)) {
+                System.out.println("Line not supported");
+                return;
             }
-        }).start();
+
+            targetLine = (TargetDataLine) AudioSystem.getLine(info);
+            targetLine.open(audioFormat);
+            targetLine.start();
+
+            audioStream = new ByteArrayOutputStream();
+            isRecording = true;
+
+            System.out.println("녹음 시작");
+
+            new Thread(() -> {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                try {
+                    while (isRecording) {
+                        bytesRead = targetLine.read(buffer, 0, buffer.length); // `targetLine`에서 데이터 읽기
+                        if (bytesRead > 0) {
+                            audioStream.write(buffer, 0, bytesRead); // 읽은 데이터를 `audioStream`에 저장
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        audioStream.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }).start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void stopRecording() {
-        if (!isRecording || targetLine == null) {
-            System.out.println("녹음이 진행 중이 아닙니다.");
-            return;
-        }
 
-        targetLine.stop(); // 녹음 중지
-        targetLine.close(); // 리소스 해제
-        targetLine = null;
-        isRecording = false;
-        System.out.println("녹음 종료.");
-        
-        File outputFile = new File("src/resources/lydfiler/audio/record_piano.wav");
-        if (outputFile.exists()) {
-            System.out.println("파일 저장 성공: " + outputFile.getAbsolutePath());
-        } else {
-            System.out.println("파일 저장 실패.");
+    public void stopRecording() {
+        try {
+            if (targetLine != null) {
+                isRecording = false;
+                targetLine.stop();
+                targetLine.close();
+                System.out.println("녹음 중지.");
+
+                // 병합된 스트림을 AudioInputStream으로 변환
+                ByteArrayInputStream bais = new ByteArrayInputStream(audioStream.toByteArray());
+                AudioInputStream ais = new AudioInputStream(bais, audioFormat, audioStream.size() / audioFormat.getFrameSize());
+
+                String filePath = "src/resources/lydfiler/audio/record_piano.wav";
+                recordedFile = new File(filePath);
+                recordedFile.getParentFile().mkdirs(); // 폴더 생성
+
+                AudioSystem.write(ais, AudioFileFormat.Type.WAVE, recordedFile);
+                System.out.println("녹음 저장 완료: " + recordedFile.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
     }
 
     private void playRecordedSound() {
-        File audioFile = new File("src/resources/lydfiler/audio/record_piano.wav");
-
-        // 파일이 존재하는지 확인
-        if (!audioFile.exists()) {
-            System.out.println("파일이 존재하지 않습니다: " + audioFile.getAbsolutePath());
+        if (recordedFile == null || !recordedFile.exists()) {
+            System.out.println("재생할 녹음 파일이 없습니다.");
             return;
         }
 
         try {
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-            Clip audioClip = AudioSystem.getClip();
-            audioClip.open(audioStream);
-            audioClip.start();
-            Thread.sleep(audioClip.getMicrosecondLength() / 1000);  // 재생이 끝날 때까지 대기
-            audioClip.close();
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(recordedFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+            System.out.println("녹음 파일 재생 중...");
+
+            clip.addLineListener(event -> {
+                if (event.getType() == javax.sound.sampled.LineEvent.Type.STOP) {
+                    clip.close();
+                    System.out.println("녹음 파일 재생 완료.");
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void mergeSoundToRecording(String soundFilePath) {
+        try {
+            File soundFile = new File("src/resources/lydfiler/audio/" + soundFilePath);
+            AudioInputStream codeStream = AudioSystem.getAudioInputStream(soundFile);
+
+            // 코드 스트림의 포맷이 다르면 리샘플링
+            if (!codeStream.getFormat().matches(audioFormat)) {
+                codeStream = AudioSystem.getAudioInputStream(audioFormat, codeStream);
+            }
+
+            AudioInputStream combinedStream = new AudioInputStream(
+                    new SequenceInputStream(
+                            new ByteArrayInputStream(audioStream.toByteArray()),
+                            codeStream),
+                    audioFormat,
+                    audioStream.size() / audioFormat.getFrameSize() + codeStream.getFrameLength());
+
+            ByteArrayOutputStream updatedStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = combinedStream.read(buffer)) != -1) {
+                updatedStream.write(buffer, 0, bytesRead);
+            }
+
+            audioStream = updatedStream;
+            System.out.println("피아노 코드 추가: " + soundFilePath);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -546,34 +566,53 @@ public class PianoPage extends JFrame {
 
     private void playSound(String soundFile) {
         try {
-        	File audioFile = new File("src/resources/lydfiler/audio/" + soundFile); 
-        	 
-            // 파일이 존재하는지 확인
+            File audioFile = new File("src/resources/lydfiler/audio/" + soundFile);
+
             if (!audioFile.exists()) {
                 System.out.println("파일이 존재하지 않습니다: " + soundFile);
                 return;
             }
-            
-            // 오디오 파일을 읽어서 클립을 생성하고 재생
+
+            // 음원 파일 재생
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
             Clip audioClip = AudioSystem.getClip();
             audioClip.open(audioStream);
             audioClip.start();
-            Thread.sleep(audioClip.getMicrosecondLength() / 1000);  // 재생이 끝날 때까지 대기
+
+            // 음원을 녹음 스트림에 병합
+            if (isRecording && this.audioStream != null) {
+                AudioInputStream buttonStream = AudioSystem.getAudioInputStream(audioFile);
+
+                // 포맷이 다를 경우 변환
+                if (!buttonStream.getFormat().matches(audioFormat)) {
+                    buttonStream = AudioSystem.getAudioInputStream(audioFormat, buttonStream);
+                }
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = buttonStream.read(buffer)) != -1) {
+                    this.audioStream.write(buffer, 0, bytesRead);
+                }
+
+                buttonStream.close();
+                System.out.println("녹음 파일에 저장 완료: " + soundFile);
+            }
+
+            // 재생이 끝날 때까지 대기
+            Thread.sleep(audioClip.getMicrosecondLength() / 1000);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-    }    
+    }
   
     private void toggleMetronome() {
-        // 현재 메트로놈 상태 확인
         if (isMetronomePlaying) {
             stopMetronome(); // 재생 중이면 중지
         } else {
             String selectedBPM = (String) metronomeSelector.getSelectedItem(); // 드롭박스에서 선택된 BPM 가져오기
 
-            // 선택된 BPM이 유효한지 확인
             if (selectedBPM != null && !selectedBPM.equals("none")) {
                 playMetronome(selectedBPM); // 유효하면 메트로놈 재생
             } else {
@@ -583,7 +622,6 @@ public class PianoPage extends JFrame {
     }
 
     private void playMetronome(String bpm) {
-        // BPM에 따라 명시적으로 파일 경로 설정
         String filePath = "";
         switch (bpm) {
             case "60bpm":
@@ -603,7 +641,6 @@ public class PianoPage extends JFrame {
                 return;
         }
 
-        // 기존 메트로놈을 멈추고 새로운 메트로놈 재생
         stopMetronome(); // 현재 재생 중인 메트로놈을 멈춤
 
         try {
@@ -629,5 +666,35 @@ public class PianoPage extends JFrame {
             isMetronomePlaying = false;
             System.out.println("메트로놈 중지");
         }
+    }
+    
+    private void customizeButton(JButton button) {
+        button.setBackground(Color.white);
+        button.setOpaque(true);
+        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 0));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private void customizeComboBox(JComboBox<String> comboBox) {
+        comboBox.setPreferredSize(new Dimension(100, 25));
+        comboBox.setBackground(Color.white);
+        comboBox.setForeground(Color.black);
+        comboBox.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                label.setOpaque(true);
+                label.setBackground(isSelected ? Color.darkGray : Color.white);
+                label.setForeground(isSelected ? Color.WHITE : Color.BLACK);
+                label.setFont(new Font("Arial", Font.PLAIN, 14));
+                return label;
+            }
+        });
+    }
+    
+    public static void main(String[] args) {
+        new PianoPage();
     }
 }

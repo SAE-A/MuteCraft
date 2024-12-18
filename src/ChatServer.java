@@ -148,7 +148,7 @@ public class ChatServer extends JFrame {
                 String[] msg = line1.split(" ");   //line1이라는 문자열을 공백(" ")을 기준으로 분할
                 UserName = msg[1].trim();          //분할된 문자열 배열 msg의 두 번째 요소(인덱스 1)를 가져와 trim 메소드를 사용하여 앞뒤의 공백을 제거
                 AppendText("새로운 참가자 " + UserName + " 입장.");
-                WriteOne("Welcome to Java chat server\n");
+                //WriteOne("Welcome to Java chat server\n");
                 WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
             } catch (Exception e) {
                 AppendText("userService error");

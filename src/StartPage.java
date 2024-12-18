@@ -5,7 +5,7 @@ public class StartPage {
 
     public StartPage() {
         // JFrame 생성
-        JFrame frame = new JFrame("Start Page");
+        JFrame frame = new JFrame("Mute Craft");
 
         // 기본 설정
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
