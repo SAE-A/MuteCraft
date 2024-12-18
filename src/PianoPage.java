@@ -94,7 +94,15 @@ public class PianoPage extends JFrame {
         backbtn.setBorderPainted(false);
         backbtn.setFocusPainted(false);
         backbtn.setPreferredSize(new Dimension(40, 40));
-
+        backbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ChoosePage();
+                setVisible(false);
+                dispose();  // 현재 창 닫기
+            }
+        });
+        
         playbtn.setIcon(resizeIcon(button_play, 25, 25));
         playbtn.setContentAreaFilled(false);
         playbtn.setBorderPainted(false);

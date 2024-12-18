@@ -5,7 +5,8 @@ import java.awt.event.ActionListener;
 
 public class ChoosePage extends JFrame {
 
-    public ChoosePage() {
+    // JFrame을 protected로 설정하여 다른 클래스에서 접근할 수 있게 함
+    protected ChoosePage() {
         // JFrame 기본 설정
         setTitle("Choose Instrument");
         setBounds(100, 100, 852, 393); // 창 위치 및 크기 설정
@@ -20,12 +21,14 @@ public class ChoosePage extends JFrame {
         chatPanel.setBackground(Color.WHITE);
         chatPanel.setLayout(new FlowLayout(FlowLayout.RIGHT)); // 오른쪽 정렬
 
+        // 채팅 버튼
         JButton chatButton = new JButton();
         ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
-        chatButton.setIcon(updateImageSize(chatIcon, 30, 30)); // 크기 조정
+        chatButton.setIcon(updateImageSize(chatIcon, 30, 35)); // 크기 조정
         chatButton.setContentAreaFilled(false);
         chatButton.setBorderPainted(false);
         chatButton.setFocusPainted(false);
+        chatButton.setPreferredSize(new Dimension(40, 40));
         chatButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -35,11 +38,38 @@ public class ChoosePage extends JFrame {
             }
         });
 
-        // 채팅 버튼
-        chatButton.setPreferredSize(new Dimension(40, 40));
-        chatPanel.add(chatButton);
-        add(chatPanel, BorderLayout.NORTH);
+        // 뒤로가기 버튼
+        JButton backbtn = new JButton();
+        ImageIcon button_back = new ImageIcon(getClass().getResource("/img/button_back.png"));
+        backbtn.setIcon(updateImageSize(button_back, 25, 25));
+        backbtn.setContentAreaFilled(false);
+        backbtn.setBorderPainted(false);
+        backbtn.setFocusPainted(false);
+        backbtn.setPreferredSize(new Dimension(40, 40));
+        backbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Back button clicked!");
+                new StartPage();
+                setVisible(false);
+                dispose();  // 현재 창 닫기
+            }
+        });
 
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(Color.WHITE);
+        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); // 왼쪽 정렬
+        leftPanel.add(backbtn);  // 뒤로가기 버튼을 왼쪽에 추가
+
+        JPanel rightPanel = new JPanel();
+        rightPanel.setBackground(Color.WHITE);
+        rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT)); // 오른쪽 정렬
+        rightPanel.add(chatButton);  // 채팅 버튼을 오른쪽에 추가
+
+        // 두 패널을 상단에 추가
+        add(leftPanel, BorderLayout.WEST);  // 왼쪽에 배치
+        add(rightPanel, BorderLayout.EAST);  // 오른쪽에 배치
+        
         // 버튼 패널
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.WHITE);

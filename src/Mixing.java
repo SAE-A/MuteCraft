@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -42,13 +44,33 @@ public class Mixing extends JFrame {
         contentPane.setLayout(new BorderLayout());
 
         // 상단 레이아웃을 FlowLayout으로 설정 (Mixing 레이블은 왼쪽 정렬)
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));  // 왼쪽 정렬
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));  // 왼쪽 정렬
         contentPane.add(topPanel, BorderLayout.NORTH);
-
-        // "Mixing" 레이블 생성 (왼쪽에 배치)
-        JLabel leftLabel = new JLabel("Mixing");
+        
+        // 뒤로가기 버튼
+        JButton backbtn = new JButton();
+        ImageIcon button_back = new ImageIcon(getClass().getResource("/img/button_back.png"));
+        backbtn.setIcon(updateImageSize(button_back, 25, 25));
+        backbtn.setContentAreaFilled(false);
+        backbtn.setBorderPainted(false);
+        backbtn.setFocusPainted(false);
+        backbtn.setPreferredSize(new Dimension(40, 40));
+        backbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ChoosePage();
+                setVisible(false);
+                dispose();
+            }
+        });
+        
+        // "Mixing" 레이블 생성
+        JLabel leftLabel = new JLabel(" Mixing");
         leftLabel.setFont(new Font("Serif", Font.PLAIN, 20));
-        topPanel.add(leftLabel);  // 레이블을 왼쪽에 추가
+
+        // 뒤로가기 버튼을 먼저 추가하고, 그 다음에 "Mixing" 레이블을 추가
+        topPanel.add(backbtn);  // 뒤로가기 버튼을 왼쪽에 추가
+        topPanel.add(leftLabel);  // "Mixing" 레이블을 뒤로가기 버튼 뒤에 추가
 
         // "Play All" 버튼을 가운데 배치하기 위한 별도 패널 생성
         JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 260, 0));  // 가운데 정렬
@@ -76,7 +98,7 @@ public class Mixing extends JFrame {
         contentPane.add(leftPanel2, BorderLayout.WEST);
 
         // 상단에 간격 추가
-        leftPanel2.add(Box.createVerticalStrut(10));  // 위쪽 여백 추가
+        leftPanel2.add(Box.createVerticalStrut(5));  // 위쪽 여백 추가
         
         // 첫 번째 오디오 재생 버튼과 사각형
         leftPanel2.add(createButtonWithRectangle("/img/piano.png", "piano", audioFile1, 0));
@@ -191,5 +213,12 @@ public class Mixing extends JFrame {
             // 상태 반전
             imageStates[i] = !imageStates[i];
         }
+    }
+    
+    // 이미지 크기 조정
+    private ImageIcon updateImageSize(ImageIcon icon, int width, int height) {
+        Image image = icon.getImage();
+        Image updatedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(updatedImage);
     }
 }
