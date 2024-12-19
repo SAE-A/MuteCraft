@@ -58,7 +58,8 @@ public class Mixing extends JFrame {
         backbtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ChoosePage();
+                ChoosePage page = new ChoosePage();
+                page.setLocation(350, 220);
                 setVisible(false);
                 dispose();
             }

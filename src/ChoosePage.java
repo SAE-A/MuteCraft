@@ -34,6 +34,7 @@ public class ChoosePage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Chat button clicked!");  // 디버깅
                 ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
+                chatClient.setLocation(650, 300);
                 chatClient.setVisible(true);  // ChatClient 창 띄우기
             }
         });
@@ -80,16 +81,18 @@ public class ChoosePage extends JFrame {
         pianoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new PianoPage(); // PianoPage.java 실행
+                PianoPage piano = new PianoPage(); // PianoPage.java 실행
+                piano.setLocation(350, 220);
             }
         });
-
+        
         // 어쿠스틱 기타 버튼
         JButton acousticGuitarButton = createButton("/img/acousticGuitar.png", "Acoustic Guitar");
         acousticGuitarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AcousticPage(); // AcousticPage.java 실행
+                AcousticPage aGuitar = new AcousticPage(); // AcousticPage.java 실행
+                aGuitar.setLocation(350, 220);
             }
         });
 
@@ -98,7 +101,8 @@ public class ChoosePage extends JFrame {
         electricGuitarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ElectricPage(); // ElectricPage.java 실행
+                ElectricPage eGuitar = new ElectricPage(); // ElectricPage.java 실행
+                eGuitar.setLocation(350, 220);
             }
         });
 

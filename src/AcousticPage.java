@@ -94,8 +94,9 @@ public class AcousticPage extends JFrame {
         backbtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ChoosePage();
-                setVisible(false);
+                ChoosePage page = new ChoosePage();
+                page.setLocation(350, 220);
+            	setVisible(false);
                 dispose();  // 현재 창 닫기
             }
         });
