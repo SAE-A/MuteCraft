@@ -75,9 +75,19 @@ public class ChoosePage extends JFrame {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-
+        
+        // 보컬 버튼
+        JButton vocalButton = createButton("/img/mic.png", "Vocal");
+        vocalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                VocalPage vocal = new VocalPage(); // MicPage.java 실행
+                vocal.setLocation(350, 220);
+            }
+        });
+        
         // 피아노 버튼
-        JButton pianoButton = createButton("/img/piano2.png", "Piano");
+        JButton pianoButton = createButton("/img/piano.png", "Piano");
         pianoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -108,10 +118,12 @@ public class ChoosePage extends JFrame {
 
         // 버튼 패널에 버튼과 간격 추가
         buttonPanel.add(Box.createHorizontalGlue()); // 왼쪽 여백
+        buttonPanel.add(vocalButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0))); // 버튼 간격
         buttonPanel.add(pianoButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(20, 0))); // 버튼 간격
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0))); // 버튼 간격
         buttonPanel.add(acousticGuitarButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(20, 0))); // 버튼 간격
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0))); // 버튼 간격
         buttonPanel.add(electricGuitarButton);
         buttonPanel.add(Box.createHorizontalGlue()); // 오른쪽 여백
 
@@ -124,7 +136,7 @@ public class ChoosePage extends JFrame {
     private JButton createButton(String imagePath, String text) {
         JButton button = new JButton(text);
         ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
-        button.setIcon(updateImageSize(icon, 200, 230));
+        button.setIcon(updateImageSize(icon, 150, 150));
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setVerticalTextPosition(SwingConstants.BOTTOM);
         button.setPreferredSize(new Dimension(200, 250));

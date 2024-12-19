@@ -4,6 +4,8 @@ import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -16,7 +18,11 @@ public class Mixing extends JFrame {
     private ArrayList<JPanel> trackPanels = new ArrayList<>(); // 트랙의 색깔 상자를 저장할 리스트
     private boolean[] trackStates = {false, false, false}; // 각 트랙의 상태 (색깔 변경 여부)
     private JLabel nowLabel; // 현재 재생 위치 표시를 위한 이미지
-
+    private boolean isMetronomePlaying = false; // 메트로놈 재생 상태
+    private Clip metronomeClip; // 메트로놈 오디오 클립
+    private JComboBox<String> metronomeSelector; // BPM 선택 드롭다운
+    private JButton metronomebtn; // 메트로놈 버튼
+    
     public Mixing() {
     	setTitle("Mixing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,6 +92,56 @@ public class Mixing extends JFrame {
         stopbtn.setFocusPainted(false);
         stopbtn.setPreferredSize(new Dimension(40, 40));
         centerTopPanel.add(stopbtn);
+
+        JButton metronomebtn = new JButton("");
+        ImageIcon metronome = new ImageIcon(getClass().getResource("/img/metronome.png"));
+        metronomebtn.setIcon(updateImageSize(metronome, 25, 25));
+        metronomebtn.setContentAreaFilled(false);
+        metronomebtn.setBorderPainted(false);
+        metronomebtn.setFocusPainted(false);
+        metronomebtn.setPreferredSize(new Dimension(50, 50));
+        centerTopPanel.add(metronomebtn);
+
+        customizeButton(metronomebtn);
+        metronomeSelector = new JComboBox<>(new String[]{"none", "60bpm", "80bpm", "100bpm", "120bpm"});
+        customizeComboBox(metronomeSelector);
+        metronomeSelector.setVisible(false); // 초기에는 숨김 상태
+        centerTopPanel.add(metronomeSelector);
+
+        // 메트로놈 버튼 리스너
+        metronomebtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 드롭박스의 가시성을 토글
+                boolean isVisible = metronomeSelector.isVisible();
+                metronomeSelector.setVisible(!isVisible);
+                centerTopPanel.revalidate(); // 패널 갱신
+                centerTopPanel.repaint();   // 패널 다시 그리기
+            }
+        });
+       
+        // 드롭박스 선택 시 BPM에 따라 메트로놈 재생/중지
+        metronomeSelector.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedBPM = (String) metronomeSelector.getSelectedItem();
+                if (selectedBPM != null) {
+                    // none이 선택된 경우 메트로놈 중지
+                    if (selectedBPM.equals("none")) {
+                        stopMetronome(); // 메트로놈 중지
+                        metronomeSelector.setVisible(false); // 드롭박스 숨기기
+                        return; // 더 이상 진행하지 않음
+                    }
+                    // 현재 재생 중인 메트로놈이 있다면 중지
+                    if (isMetronomePlaying) {
+                        stopMetronome(); // 멈추고
+                    }
+                    // 새로운 BPM으로 메트로놈 재생
+                    playMetronome(selectedBPM); // 재생
+                    metronomeSelector.setVisible(false); // 드롭박스 숨기기
+                }
+            }
+        });
 
         // 왼쪽과 중앙 패널을 topPanel에 추가
         topPanel.add(leftTopPanel, BorderLayout.WEST);
@@ -290,6 +346,97 @@ public class Mixing extends JFrame {
         Image image = icon.getImage();
         Image updatedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         return new ImageIcon(updatedImage);
+    }
+    
+    private void toggleMetronome() {
+        // 현재 메트로놈 상태 확인
+        if (isMetronomePlaying) {
+            stopMetronome(); // 재생 중이면 중지
+        } else {
+            String selectedBPM = (String) metronomeSelector.getSelectedItem(); // 드롭박스에서 선택된 BPM 가져오기
+
+            // 선택된 BPM이 유효한지 확인
+            if (selectedBPM != null && !selectedBPM.equals("none")) {
+                playMetronome(selectedBPM); // 유효하면 메트로놈 재생
+            } else {
+                System.out.println("BPM을 선택하세요.");
+            }
+        }
+    }
+
+    private void playMetronome(String bpm) {
+        // BPM에 따라 명시적으로 파일 경로 설정
+        String filePath = "";
+        switch (bpm) {
+            case "60bpm":
+                filePath = "metronome/metronome_60bpm.wav";
+                break;
+            case "80bpm":
+                filePath = "metronome/metronome_80bpm.wav";
+                break;
+            case "100bpm":
+                filePath = "metronome/metronome_100bpm.wav";
+                break;
+            case "120bpm":
+                filePath = "metronome/metronome_120bpm.wav";
+                break;
+            default:
+                System.out.println("선택한 BPM의 파일이 없습니다.");
+                return;
+        }
+
+        // 기존 메트로놈을 멈추고 새로운 메트로놈 재생
+        stopMetronome(); // 현재 재생 중인 메트로놈을 멈춤
+
+        try {
+            // 오디오 파일을 읽어서 클립을 생성하고 재생
+            File audioFile = new File("src/resources/lydfiler/audio/" + filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            metronomeClip = AudioSystem.getClip();
+            metronomeClip.open(audioStream);
+            metronomeClip.loop(Clip.LOOP_CONTINUOUSLY); // 메트로놈 반복 재생
+            metronomeClip.start();
+
+            isMetronomePlaying = true;
+            System.out.println(bpm + " 메트로놈 재생 시작");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopMetronome() {
+        if (metronomeClip != null && metronomeClip.isRunning()) {
+            metronomeClip.stop();
+            metronomeClip.close();
+            isMetronomePlaying = false;
+            System.out.println("메트로놈 중지");
+        }
+    }
+
+    private void customizeButton(JButton button) {
+        button.setBackground(Color.white);
+        button.setOpaque(true);
+        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 0));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private void customizeComboBox(JComboBox<String> comboBox) {
+        comboBox.setPreferredSize(new Dimension(100, 25));
+        comboBox.setBackground(Color.white);
+        comboBox.setForeground(Color.black);
+        comboBox.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                label.setOpaque(true);
+                label.setBackground(isSelected ? Color.darkGray : Color.white);
+                label.setForeground(isSelected ? Color.WHITE : Color.BLACK);
+                label.setFont(new Font("Arial", Font.PLAIN, 14));
+                return label;
+            }
+        });
     }
 
     public static void main(String[] args) {
