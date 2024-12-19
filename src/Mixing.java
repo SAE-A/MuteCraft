@@ -1,53 +1,43 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Mixing extends JFrame {
-
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
-
-    // 오디오 파일 경로
     private String audioFile1 = "src/resources/lydfiler/audio/record_piano.wav";
     private String audioFile2 = "src/resources/lydfiler/audio/record_acoustic.wav";
     private String audioFile3 = "src/resources/lydfiler/audio/record_electric.wav";
-
-    // 각 이미지 레이블을 저장할 리스트
-    private ArrayList<JLabel> imageLabels = new ArrayList<>();
-    // 각 버튼의 이미지 상태를 추적할 배열 (true -> clickedSoundWave.png, false -> soundWave.png)
-    private boolean[] imageStates = {false, false, false};
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                Mixing frame = new Mixing();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
+    private ArrayList<JPanel> trackPanels = new ArrayList<>(); // 트랙의 색깔 상자를 저장할 리스트
+    private boolean[] trackStates = {false, false, false}; // 각 트랙의 상태 (색깔 변경 여부)
+    private JLabel nowLabel; // 현재 재생 위치 표시를 위한 이미지
 
     public Mixing() {
-        setTitle("Mixing");
+    	setTitle("Mixing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 852, 393);
 
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        contentPane.setBackground(Color.WHITE); // 배경색 흰색 설정
         setContentPane(contentPane);
         contentPane.setLayout(new BorderLayout());
 
-        // 상단 레이아웃을 FlowLayout으로 설정 (Mixing 레이블은 왼쪽 정렬)
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));  // 왼쪽 정렬
+        // 상단 패널 생성
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
         contentPane.add(topPanel, BorderLayout.NORTH);
-        
-        // 뒤로가기 버튼
+
+        // 왼쪽 (Back 버튼과 Mixing 레이블)
+        JPanel leftTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 0));
+        leftTopPanel.setBackground(Color.WHITE);
+
+        // Back 버튼
         JButton backbtn = new JButton();
         ImageIcon button_back = new ImageIcon(getClass().getResource("/img/button_back.png"));
         backbtn.setIcon(updateImageSize(button_back, 25, 25));
@@ -55,59 +45,66 @@ public class Mixing extends JFrame {
         backbtn.setBorderPainted(false);
         backbtn.setFocusPainted(false);
         backbtn.setPreferredSize(new Dimension(40, 40));
-        backbtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ChoosePage page = new ChoosePage();
-                page.setLocation(350, 220);
-                setVisible(false);
-                dispose();
-            }
+        backbtn.addActionListener(e -> {
+            ChoosePage page = new ChoosePage();
+            page.setLocation(350, 220);
+            setVisible(false);
+            dispose();
         });
-        
-        // "Mixing" 레이블 생성
+        leftTopPanel.add(backbtn);
+
+        // Mixing 레이블
         JLabel leftLabel = new JLabel(" Mixing");
-        leftLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+        leftLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        leftTopPanel.add(leftLabel);
 
-        // 뒤로가기 버튼을 먼저 추가하고, 그 다음에 "Mixing" 레이블을 추가
-        topPanel.add(backbtn);  // 뒤로가기 버튼을 왼쪽에 추가
-        topPanel.add(leftLabel);  // "Mixing" 레이블을 뒤로가기 버튼 뒤에 추가
+        // 중앙 (Play All 버튼과 Stop 버튼)
+        JPanel centerTopPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        centerTopPanel.setBackground(Color.WHITE);
 
-        // "Play All" 버튼을 가운데 배치하기 위한 별도 패널 생성
-        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 260, 0));  // 가운데 정렬
-        JButton playAllButton = new JButton("Play All");
+        // Play All 버튼
+        JButton playAllButton = new JButton("");
+        ImageIcon button_play = new ImageIcon(getClass().getResource("/img/button_play.png"));
+        playAllButton.setIcon(updateImageSize(button_play, 25, 25));
+        playAllButton.setContentAreaFilled(false);
+        playAllButton.setBorderPainted(false);
+        playAllButton.setFocusPainted(false);
+        playAllButton.setPreferredSize(new Dimension(50, 50));
         playAllButton.addActionListener(e -> {
-            // 각 오디오 파일을 별도 스레드에서 재생
             new Thread(() -> playAudio(audioFile1)).start();
             new Thread(() -> playAudio(audioFile2)).start();
             new Thread(() -> playAudio(audioFile3)).start();
-
-            // "Play All" 버튼을 눌렀을 때 모든 이미지를 토글
-            toggleAllImages();  // 세 개의 이미지 상태 토글
         });
+        centerTopPanel.add(playAllButton);
 
-        // 가운데 정렬을 위해 버튼을 centerPanel에 추가
-        centerPanel.add(playAllButton);  // 버튼을 가운데에 배치
+        // Stop 버튼
+        JButton stopbtn = new JButton("");
+        ImageIcon button_stop = new ImageIcon(getClass().getResource("/img/button_stop.png"));
+        stopbtn.setIcon(updateImageSize(button_stop, 25, 25));
+        stopbtn.setContentAreaFilled(false);
+        stopbtn.setBorderPainted(false);
+        stopbtn.setFocusPainted(false);
+        stopbtn.setPreferredSize(new Dimension(40, 40));
+        centerTopPanel.add(stopbtn);
 
-        // 가운데 패널을 topPanel에 추가하여 레이블과 버튼이 각각 왼쪽과 가운데에 배치되도록 함
-        topPanel.add(Box.createHorizontalGlue());  // 남은 공간을 채우기 위한 Glue 추가
-        topPanel.add(centerPanel);
+        // 왼쪽과 중앙 패널을 topPanel에 추가
+        topPanel.add(leftTopPanel, BorderLayout.WEST);
+        topPanel.add(centerTopPanel, BorderLayout.CENTER);
 
         // 왼쪽에 세로로 정렬된 버튼 패널 생성
         JPanel leftPanel2 = new JPanel();
         leftPanel2.setLayout(new BoxLayout(leftPanel2, BoxLayout.Y_AXIS));
+        leftPanel2.setBackground(Color.WHITE); // 배경색 흰색 설정
         contentPane.add(leftPanel2, BorderLayout.WEST);
-
-        // 상단에 간격 추가
-        leftPanel2.add(Box.createVerticalStrut(5));  // 위쪽 여백 추가
         
-        // 첫 번째 오디오 재생 버튼과 사각형
+        nowLabel = new JLabel(new ImageIcon(getClass().getResource("/img/now.png"))); // 현재 위치 표시 이미지
+        nowLabel.setSize(10, 50); // 이미지 크기 설정
+        contentPane.add(nowLabel); // 메인 패널에 추가
+        
+        // 상단에 간격 추가
+        leftPanel2.add(Box.createVerticalStrut(0));  // 위쪽 여백 추가
         leftPanel2.add(createButtonWithRectangle("/img/piano.png", "piano", audioFile1, 0));
-
-        // 두 번째 오디오 재생 버튼과 사각형
         leftPanel2.add(createButtonWithRectangle("/img/acousticGuitar.png", "acoustic", audioFile2, 1));
-
-        // 세 번째 오디오 재생 버튼과 사각형
         leftPanel2.add(createButtonWithRectangle("/img/electricGuitar.png", "electric", audioFile3, 2));
     }
 
@@ -125,7 +122,7 @@ public class Mixing extends JFrame {
             clip.open(audioStream);
             clip.start();
 
-            // 클립이 끝날 때까지 대기
+            // 오디오 재생 중 대기
             Thread.sleep(clip.getMicrosecondLength() / 1000);
 
             clip.close(); // 리소스 해제
@@ -135,91 +132,174 @@ public class Mixing extends JFrame {
         }
     }
 
+    // 버튼과 색깔 상자를 포함하는 패널 생성
     private JPanel createButtonWithRectangle(String imagePath, String text, String audioFile, int index) {
         JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
         panel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
 
-        // 이미지 아이콘 로드 (버튼용 이미지)
         ImageIcon buttonIcon = new ImageIcon(getClass().getResource(imagePath));
         Image img = buttonIcon.getImage();
-        Image resizedImg = img.getScaledInstance(70, 70, Image.SCALE_SMOOTH);  // 크기 조정
+        Image resizedImg = img.getScaledInstance(70, 70, Image.SCALE_SMOOTH);
         buttonIcon = new ImageIcon(resizedImg);
 
-        // 오디오 재생 버튼
         JButton playButton = new JButton(buttonIcon);
         playButton.setContentAreaFilled(false);
         playButton.setBorderPainted(false);
         playButton.setFocusPainted(false);
         playButton.setText(text);
-        playButton.setVerticalTextPosition(SwingConstants.BOTTOM); // 텍스트를 버튼의 아래쪽에 위치시키기
-        playButton.setHorizontalTextPosition(SwingConstants.CENTER); // 텍스트를 버튼의 가운데에 위치시키기
-        playButton.addActionListener(e -> {
-            // 오디오 파일 재생
-            playAudio(audioFile);
-            // 이미지 변경
-            toggleImage(index);  // 이미지 토글
-            System.out.println("click!");
+        playButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        playButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        
+        // 오디오 길이 가져오기
+        int audioLength = getAudioLength(audioFile); // 초 단위
+        int boxWidth = Math.max(50, audioLength * 20); // 최소 50px, 초당 20px 크기
+
+        // 회색 상자 패널 생성
+        JPanel trackPanel = new JPanel();
+        trackPanel.setPreferredSize(new Dimension(700, 70));
+        trackPanel.setBackground(Color.LIGHT_GRAY); // 기본 색깔
+        trackPanels.add(trackPanel); // 색깔 상자를 trackPanels 리스트에 추가
+
+        // 작은 색깔 박스 생성
+        JPanel smallTrackPanel = new JPanel();
+        smallTrackPanel.setPreferredSize(new Dimension(boxWidth, 50)); // 폭은 오디오 길이에 비례
+        smallTrackPanel.setBackground(getColorForTrack(index)); // 색상 설정
+
+        // 작은 색깔 박스의 Y 위치를 중앙에 설정
+        int trackPanelHeight = trackPanel.getPreferredSize().height;
+        int smallTrackPanelHeight = smallTrackPanel.getPreferredSize().height;
+        int yPosition = (trackPanelHeight - smallTrackPanelHeight) / 2; // 중앙 위치 계산
+
+        // 드래그 이벤트 추가
+        smallTrackPanel.addMouseListener(new MouseAdapter() {
+            private int startX;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                startX = e.getX(); // 드래그 시작 위치 저장
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int newX = e.getXOnScreen() - smallTrackPanel.getParent().getLocationOnScreen().x; // 새로운 X 위치
+                int newStart = Math.max(0, Math.min(newX, 700 - smallTrackPanel.getWidth())); // 범위 제한
+                
+                // 음악 재생 시작 시간 조정
+                int offset = newStart / 10; // 10px 당 1초로 간주 (조정 가능)
+                
+                // 작은 색깔 박스를 새로운 위치로 설정
+                smallTrackPanel.setBounds(newStart, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight()); // Y 위치 설정
+            }
         });
 
-        // 이미지 아이콘 로드 (사각형 위에 표시할 이미지)
-        ImageIcon imageIcon = new ImageIcon(getClass().getResource("/img/soundWave.png"));
-        Image image = imageIcon.getImage();
-        Image resizedImage = image.getScaledInstance(700, 50, Image.SCALE_SMOOTH);  // 크기 조정
-        imageIcon = new ImageIcon(resizedImage);
+        // trackPanel에 작은 색깔 박스를 추가
+        trackPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 15)); // 여백 조정
+        smallTrackPanel.setBounds(0, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight()); // 초기 위치 설정
+        trackPanel.add(smallTrackPanel);
 
-        // 이미지 표시용 JLabel 생성
-        JLabel imageLabel = new JLabel(imageIcon);
-        imageLabels.add(imageLabel);  // 해당 이미지 레이블을 리스트에 저장
-
-        // 패널에 버튼과 이미지 추가
+        // playButton과 trackPanel을 panel에 추가
         panel.add(playButton);
-        panel.add(imageLabel);
+        panel.add(trackPanel);
 
-        return panel;
+        return panel; // panel을 반환
     }
 
-    // 이미지를 토글하는 메서드
-    private void toggleImage(int index) {
-        // 이미지 상태에 따라 토글
-        if (imageStates[index]) {
-            // 원본 이미지로 변경
-            changeImage(index, "/img/soundWave.png");
-        } else {
-            // soundWave.png로 변경
-            changeImage(index, "/img/clickedSoundWave.png");
-        }
-        // 상태 반전
-        imageStates[index] = !imageStates[index];
-    }
-
-    // 이미지를 변경하는 메서드
-    private void changeImage(int index, String imagePath) {
-        ImageIcon newIcon = new ImageIcon(getClass().getResource(imagePath));
-        Image image = newIcon.getImage();
-        Image resizedImage = image.getScaledInstance(700, 50, Image.SCALE_SMOOTH);  // 크기 조정
-        newIcon = new ImageIcon(resizedImage);
-        imageLabels.get(index).setIcon(newIcon);  // 해당 인덱스의 JLabel에 새 아이콘 설정
-    }
-
-    // "Play All" 버튼을 눌렀을 때 세 개의 이미지 상태 토글
-    private void toggleAllImages() {
-        for (int i = 0; i < imageStates.length; i++) {
-            if (imageStates[i]) {
-                // 원본 이미지로 변경
-                changeImage(i, "/img/soundWave.png");
-            } else {
-                // soundWave.png로 변경
-                changeImage(i, "/img/clickedSoundWave.png");
+    // 오디오 재생 메서드 (시작 시간 오프셋 추가)
+    private void playAudioWithOffset(String filePath, int offset) {
+        try {
+            File audioFile = new File(filePath);
+            if (!audioFile.exists()) {
+                System.out.println("파일이 존재하지 않습니다: " + filePath);
+                return;
             }
-            // 상태 반전
-            imageStates[i] = !imageStates[i];
+
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            // 오프셋에 따라 재생 시작
+            clip.setMicrosecondPosition(offset * 1_000_000); // 초를 마이크로초로 변환하여 설정
+            clip.start();
+
+            // 오디오 재생 중 대기
+            Thread.sleep(clip.getMicrosecondLength() / 1000);
+
+            clip.close(); // 리소스 해제
+            System.out.println("재생 완료: " + filePath);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-    
-    // 이미지 크기 조정
+
+    private Color getColorForTrack(int index) {
+        switch (index) {
+            case 0: return new Color(251, 48, 156); // 피아노 색상
+            case 1: return new Color(48, 187, 251); // 어쿠스틱 기타 색상
+            case 2: return new Color(106, 251, 48); // 일렉트릭 기타 색상
+            default: return Color.LIGHT_GRAY; // 기본 색상
+        }
+    }
+
+    // 특정 트랙의 색깔을 토글하는 메서드
+    private void toggleTrackColor(int index) {
+        if (trackStates[index]) {
+            trackPanels.get(index).setBackground(Color.LIGHT_GRAY); // 기본 색깔
+        } else {
+            trackPanels.get(index).setBackground(Color.LIGHT_GRAY); // 활성화된 색깔
+        }
+        trackStates[index] = !trackStates[index];
+    }
+
+    // 모든 트랙 색깔을 토글하는 메서드 (Play All 버튼에서 호출)
+    private void toggleAllTracks() {
+        for (int i = 0; i < trackStates.length; i++) {
+            if (trackStates[i]) {
+                trackPanels.get(i).setBackground(Color.LIGHT_GRAY);
+            } else {
+                trackPanels.get(i).setBackground(Color.LIGHT_GRAY);
+            }
+            trackStates[i] = !trackStates[i];
+        }
+    }
+
+    private int getAudioLength(String filePath) {
+        try {
+            File audioFile = new File(filePath);
+            if (!audioFile.exists()) {
+                System.out.println("파일이 존재하지 않습니다: " + filePath);
+                return 0;
+            }
+
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            // 오디오 길이 (마이크로초 → 초 단위 변환)
+            long microseconds = clip.getMicrosecondLength();
+            int seconds = (int) (microseconds / 1_000_000);
+            clip.close(); // 리소스 해제
+            return seconds;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+ 
     private ImageIcon updateImageSize(ImageIcon icon, int width, int height) {
         Image image = icon.getImage();
         Image updatedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         return new ImageIcon(updatedImage);
+    }
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                Mixing frame = new Mixing();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
