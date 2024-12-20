@@ -19,7 +19,8 @@ public class VocalPage extends JFrame {
     private ByteArrayOutputStream audioStream; // 오디오 데이터 저장
     private TargetDataLine targetLine; // 녹음 장치
     private ArrayList<File> codeFiles = new ArrayList<>(); // 코드 음원 파일 목록
-    private WaveformPanel waveformPanel; // 파형 패널 추가
+    private JPanel micPanel; // 마이크 패널
+    private ImageIcon waveImage; // 파형 이미지
 
     public VocalPage() {
         setTitle("Vocal");
@@ -29,6 +30,8 @@ public class VocalPage extends JFrame {
         Container contentPane = getContentPane();
         contentPane.setLayout(null);
         contentPane.setBackground(Color.WHITE);
+        
+        waveImage = updateImageSize(new ImageIcon(getClass().getResource("/img/wave.png")), 500, 150);
 
         JPanel panel_buttons = new JPanel();
         panel_buttons.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
@@ -69,7 +72,7 @@ public class VocalPage extends JFrame {
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
-
+        
         backbtn.setIcon(updateImageSize(button_back, 25, 25));
         backbtn.setContentAreaFilled(false);
         backbtn.setBorderPainted(false);
@@ -180,14 +183,23 @@ public class VocalPage extends JFrame {
             }
         });
         
+        micPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (isRecording) {
+                    drawWaveImage(g); // 파형 이미지 그리기
+                }
+            }
+        };
+        micPanel.setBounds(0, 65, 852, 293);
+        micPanel.setOpaque(false); // 패널 투명하게 설정
+        contentPane.add(micPanel); // contentPane에 추가
+        
         ImageIcon micIcon = new ImageIcon(getClass().getResource("/img/mic.png"));
         JLabel micLabel = new JLabel(updateImageSize(micIcon, 255, 255));
         micLabel.setBounds(0, 65, 852, 293);
         contentPane.add(micLabel);
-        
-        waveformPanel = new WaveformPanel();
-        waveformPanel.setBounds(0, 160, 852, 50); // 위치 및 크기 설정
-        contentPane.add(waveformPanel);
         
         panel_buttons.add(leftPanel, BorderLayout.WEST);
         panel_buttons.add(centerPanel, BorderLayout.CENTER);
@@ -212,7 +224,11 @@ public class VocalPage extends JFrame {
         boolean bigEndian = false; // 빅엔디안 여부
         return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
     }
-
+    
+    private void drawWaveImage(Graphics g) {
+        g.drawImage(waveImage.getImage(), 183, 50, this);
+    }
+    
     public void startRecording() {
         try {
             audioFormat = getAudioFormat();
@@ -228,6 +244,7 @@ public class VocalPage extends JFrame {
 
             audioStream = new ByteArrayOutputStream();
             isRecording = true;
+            micPanel.repaint();
 
             Thread recordingThread = new Thread(() -> {
                 byte[] buffer = new byte[1024];
@@ -236,7 +253,6 @@ public class VocalPage extends JFrame {
                         int bytesRead = targetLine.read(buffer, 0, buffer.length);
                         if (bytesRead > 0) {
                             audioStream.write(buffer, 0, bytesRead);
-                            waveformPanel.updateWaveform(buffer, bytesRead); // 파형 업데이트
                         }
                     }
                 } catch (Exception e) {
@@ -268,8 +284,7 @@ public class VocalPage extends JFrame {
         targetLine.close();
         System.out.println("녹음 중지...");
 
-        // 녹음이 중지된 후 파형 패널 숨기기
-        waveformPanel.setVisible(false); // 파형 패널 숨김
+        micPanel.repaint();
 
         try {
             byte[] audioData = audioStream.toByteArray();

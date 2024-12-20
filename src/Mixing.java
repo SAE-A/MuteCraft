@@ -4,6 +4,7 @@ import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -26,10 +27,18 @@ public class Mixing extends JFrame {
     private JComboBox<String> metronomeSelector; // BPM 선택 드롭다운
     private JButton metronomebtn; // 메트로놈 버튼
     
+    private int[] trackOffsets;
+    private String[] trackFiles = {audioFile1, audioFile2, audioFile3, audioFile4};
+
     public Mixing() {
         setTitle("Mixing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 868, 393);
+        
+        trackOffsets = new int[4]; // Four tracks initialized with offsets of 0
+        for (int i = 0; i < trackOffsets.length; i++) {
+            trackOffsets[i] = 0;
+        }
 
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -80,12 +89,32 @@ public class Mixing extends JFrame {
         playAllButton.setFocusPainted(false);
         playAllButton.setPreferredSize(new Dimension(50, 50));
         playAllButton.addActionListener(e -> {
-            new Thread(() -> playAudio(audioFile1)).start();
-            new Thread(() -> playAudio(audioFile2)).start();
-            new Thread(() -> playAudio(audioFile3)).start();
+            int[] maxDuration = {0}; // 배열로 최대 길이 감싸기
+            for (int i = 0; i < trackOffsets.length; i++) {
+                int trackEnd = trackOffsets[i] + getAudioLength(trackFiles[i]);
+                maxDuration[0] = Math.max(maxDuration[0], trackEnd); // 최대 길이 업데이트
+            }
+
+            new Thread(() -> {
+                try {
+                    for (int currentTime = 0; currentTime <= maxDuration[0]; currentTime++) {
+                        for (int i = 0; i < trackOffsets.length; i++) {
+                            final int trackIndex = i; // `i`를 복사하여 `final` 변수로 사용
+                            if (currentTime == trackOffsets[trackIndex]) {
+                                int offset = currentTime - trackOffsets[trackIndex];
+                                new Thread(() -> playAudioWithOffset(trackFiles[trackIndex], offset)).start();
+                            }
+                        }
+                        Thread.sleep(400); // 1초 단위로 진행
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
         });
         centerTopPanel.add(playAllButton);
 
+        
         // Stop 버튼
         JButton stopbtn = new JButton("");
         ImageIcon button_stop = new ImageIcon(getClass().getResource("/img/button_stop.png"));
@@ -251,9 +280,9 @@ public class Mixing extends JFrame {
         smallTrackPanel.setBackground(getColorForTrack(index)); // 색상 설정
 
         // 작은 색깔 박스의 Y 위치를 중앙에 설정
-        int trackPanelHeight = trackPanel.getPreferredSize().height;
-        int smallTrackPanelHeight = smallTrackPanel.getPreferredSize().height;
-        int yPosition = (trackPanelHeight - smallTrackPanelHeight) / 2; // 중앙 위치 계산
+        int yPosition = (trackPanel.getPreferredSize().height - smallTrackPanel.getPreferredSize().height) / 2;
+        smallTrackPanel.setBounds(5, yPosition, smallTrackPanel.getPreferredSize().width, smallTrackPanel.getPreferredSize().height);
+        trackPanel.add(smallTrackPanel);
 
         // 작은 색깔 박스를 trackPanel에 추가
         smallTrackPanel.setBounds(5, yPosition, smallTrackPanel.getPreferredSize().width, smallTrackPanel.getPreferredSize().height);
@@ -276,20 +305,14 @@ public class Mixing extends JFrame {
             public void mouseReleased(MouseEvent e) {
                 int newX = e.getXOnScreen() - smallTrackPanel.getParent().getLocationOnScreen().x; // 새로운 X 위치
                 int newStart = Math.max(0, Math.min(newX, 700 - smallTrackPanel.getWidth())); // 범위 제한
-                
-                // 음악 재생 시작 시간 조정
                 int offset = newStart / 10; // 10px 당 1초로 간주 (조정 가능)
-                
-                // 작은 색깔 박스를 새로운 위치로 설정
-                smallTrackPanel.setBounds(newStart, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight()); // Y 위치 설정
+                trackOffsets[index] = offset; // 오프셋 저장
+                smallTrackPanel.setBounds(newStart, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight());
                 nowLabel.setBounds(newStart + 10, yPosition + 10, 25, 25); // nowLabel 위치 조정
             }
         });
-        
-        // playButton과 trackPanel을 panel에 추가
         panel.add(playButton);
         panel.add(trackPanel);
-
         return panel; // panel을 반환
     }
 
@@ -306,12 +329,19 @@ public class Mixing extends JFrame {
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
 
-            // 오프셋에 따라 재생 시작
-            clip.setMicrosecondPosition(offset * 1_000_000); // 초를 마이크로초로 변환하여 설정
-            clip.start();
+            // 오프셋 적용
+            long totalLengthMicroseconds = clip.getMicrosecondLength();
+            long startPosition = offset * 1_000_000L;
 
-            // 오디오 재생 중 대기
-            Thread.sleep(clip.getMicrosecondLength() / 1000);
+            if (startPosition < totalLengthMicroseconds) {
+                clip.setMicrosecondPosition(startPosition); // 오프셋에서 시작
+                clip.start();
+            }
+
+            long remainingTimeMilliseconds = (totalLengthMicroseconds - startPosition) / 1000;
+            if (remainingTimeMilliseconds > 0) {
+                Thread.sleep(remainingTimeMilliseconds); // 남은 재생 시간 대기
+            }
 
             clip.close(); // 리소스 해제
             System.out.println("재생 완료: " + filePath);
