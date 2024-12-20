@@ -15,18 +15,21 @@ public class Mixing extends JFrame {
     private String audioFile1 = "src/resources/lydfiler/audio/record_piano.wav";
     private String audioFile2 = "src/resources/lydfiler/audio/record_acoustic.wav";
     private String audioFile3 = "src/resources/lydfiler/audio/record_electric.wav";
+    private String audioFile4 = "src/resources/lydfiler/audio/record_vocal.wav";
+
     private ArrayList<JPanel> trackPanels = new ArrayList<>(); // 트랙의 색깔 상자를 저장할 리스트
     private boolean[] trackStates = {false, false, false}; // 각 트랙의 상태 (색깔 변경 여부)
     private JLabel nowLabel; // 현재 재생 위치 표시를 위한 이미지
+    
     private boolean isMetronomePlaying = false; // 메트로놈 재생 상태
     private Clip metronomeClip; // 메트로놈 오디오 클립
     private JComboBox<String> metronomeSelector; // BPM 선택 드롭다운
     private JButton metronomebtn; // 메트로놈 버튼
     
     public Mixing() {
-    	setTitle("Mixing");
+        setTitle("Mixing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 852, 393);
+        setBounds(100, 100, 868, 393);
 
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -92,7 +95,8 @@ public class Mixing extends JFrame {
         stopbtn.setFocusPainted(false);
         stopbtn.setPreferredSize(new Dimension(40, 40));
         centerTopPanel.add(stopbtn);
-
+        
+        // 메트로놈 버튼
         JButton metronomebtn = new JButton("");
         ImageIcon metronome = new ImageIcon(getClass().getResource("/img/metronome.png"));
         metronomebtn.setIcon(updateImageSize(metronome, 25, 25));
@@ -147,21 +151,41 @@ public class Mixing extends JFrame {
         topPanel.add(leftTopPanel, BorderLayout.WEST);
         topPanel.add(centerTopPanel, BorderLayout.CENTER);
 
+        // 채팅 버튼
+        JButton chatButton = new JButton();
+        ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
+        chatButton.setIcon(updateImageSize(chatIcon, 30, 35)); // 크기 조정
+        chatButton.setContentAreaFilled(false);
+        chatButton.setBorderPainted(false);
+        chatButton.setFocusPainted(false);
+        chatButton.setPreferredSize(new Dimension(40, 40));
+        chatButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Chat button clicked!");  // 디버깅
+                ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
+                chatClient.setLocation(650, 300);
+                chatClient.setVisible(true);  // ChatClient 창 띄우기
+            }
+        });
+        topPanel.add(chatButton, BorderLayout.EAST); // 채팅 버튼을 topPanel의 오른쪽에 추가
+
         // 왼쪽에 세로로 정렬된 버튼 패널 생성
         JPanel leftPanel2 = new JPanel();
         leftPanel2.setLayout(new BoxLayout(leftPanel2, BoxLayout.Y_AXIS));
         leftPanel2.setBackground(Color.WHITE); // 배경색 흰색 설정
         contentPane.add(leftPanel2, BorderLayout.WEST);
         
-        nowLabel = new JLabel(new ImageIcon(getClass().getResource("/img/now.png"))); // 현재 위치 표시 이미지
-        nowLabel.setSize(10, 50); // 이미지 크기 설정
-        contentPane.add(nowLabel); // 메인 패널에 추가
+        ImageIcon nowIcon = new ImageIcon(getClass().getResource("/img/now.png"));
+        Image resizedNowImage = nowIcon.getImage().getScaledInstance(25, 300, Image.SCALE_SMOOTH); // 원하는 크기로 조정
+        nowLabel = new JLabel(new ImageIcon(resizedNowImage)); // 리사이즈된 이미지를 사용
+        nowLabel.setSize(20, 450); // 이미지 크기 설정 (필요시 이 부분도 조정)
+        //contentPane.add(nowLabel); // 메인 패널에 추가
         
-        // 상단에 간격 추가
-        leftPanel2.add(Box.createVerticalStrut(0));  // 위쪽 여백 추가
         leftPanel2.add(createButtonWithRectangle("/img/piano.png", "piano", audioFile1, 0));
         leftPanel2.add(createButtonWithRectangle("/img/acousticGuitar.png", "acoustic", audioFile2, 1));
         leftPanel2.add(createButtonWithRectangle("/img/electricGuitar.png", "electric", audioFile3, 2));
+        leftPanel2.add(createButtonWithRectangle("/img/mic.png", "vocal", audioFile4, 3));
     }
 
     // 오디오 재생 메서드
@@ -192,11 +216,11 @@ public class Mixing extends JFrame {
     private JPanel createButtonWithRectangle(String imagePath, String text, String audioFile, int index) {
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
-        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
-
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        
         ImageIcon buttonIcon = new ImageIcon(getClass().getResource(imagePath));
         Image img = buttonIcon.getImage();
-        Image resizedImg = img.getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+        Image resizedImg = img.getScaledInstance(44, 44, Image.SCALE_SMOOTH);
         buttonIcon = new ImageIcon(resizedImg);
 
         JButton playButton = new JButton(buttonIcon);
@@ -206,6 +230,9 @@ public class Mixing extends JFrame {
         playButton.setText(text);
         playButton.setVerticalTextPosition(SwingConstants.BOTTOM);
         playButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        playButton.addActionListener(e -> {
+            new Thread(() -> playAudio(audioFile)).start(); // 클릭 시 오디오 재생
+        });
         
         // 오디오 길이 가져오기
         int audioLength = getAudioLength(audioFile); // 초 단위
@@ -213,9 +240,10 @@ public class Mixing extends JFrame {
 
         // 회색 상자 패널 생성
         JPanel trackPanel = new JPanel();
-        trackPanel.setPreferredSize(new Dimension(700, 70));
+        trackPanel.setPreferredSize(new Dimension(760, 60));
         trackPanel.setBackground(Color.LIGHT_GRAY); // 기본 색깔
         trackPanels.add(trackPanel); // 색깔 상자를 trackPanels 리스트에 추가
+        trackPanel.setLayout(null); // null 레이아웃으로 수동 위치 지정
 
         // 작은 색깔 박스 생성
         JPanel smallTrackPanel = new JPanel();
@@ -226,6 +254,14 @@ public class Mixing extends JFrame {
         int trackPanelHeight = trackPanel.getPreferredSize().height;
         int smallTrackPanelHeight = smallTrackPanel.getPreferredSize().height;
         int yPosition = (trackPanelHeight - smallTrackPanelHeight) / 2; // 중앙 위치 계산
+
+        // 작은 색깔 박스를 trackPanel에 추가
+        smallTrackPanel.setBounds(5, yPosition, smallTrackPanel.getPreferredSize().width, smallTrackPanel.getPreferredSize().height);
+        trackPanel.add(smallTrackPanel);
+        
+        // nowLabel을 smallTrackPanel 위에 추가
+        nowLabel.setBounds(10, yPosition + 10, 25, 25); // 적절한 위치 조정
+        trackPanel.add(nowLabel); // nowLabel 추가
 
         // 드래그 이벤트 추가
         smallTrackPanel.addMouseListener(new MouseAdapter() {
@@ -246,14 +282,10 @@ public class Mixing extends JFrame {
                 
                 // 작은 색깔 박스를 새로운 위치로 설정
                 smallTrackPanel.setBounds(newStart, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight()); // Y 위치 설정
+                nowLabel.setBounds(newStart + 10, yPosition + 10, 25, 25); // nowLabel 위치 조정
             }
         });
-
-        // trackPanel에 작은 색깔 박스를 추가
-        trackPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 15)); // 여백 조정
-        smallTrackPanel.setBounds(0, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight()); // 초기 위치 설정
-        trackPanel.add(smallTrackPanel);
-
+        
         // playButton과 trackPanel을 panel에 추가
         panel.add(playButton);
         panel.add(trackPanel);
@@ -293,11 +325,11 @@ public class Mixing extends JFrame {
             case 0: return new Color(251, 48, 156); // 피아노 색상
             case 1: return new Color(48, 187, 251); // 어쿠스틱 기타 색상
             case 2: return new Color(106, 251, 48); // 일렉트릭 기타 색상
+            case 3: return new Color(248, 251, 48); // 보컬 색상
             default: return Color.LIGHT_GRAY; // 기본 색상
         }
     }
 
-    // 특정 트랙의 색깔을 토글하는 메서드
     private void toggleTrackColor(int index) {
         if (trackStates[index]) {
             trackPanels.get(index).setBackground(Color.LIGHT_GRAY); // 기본 색깔
@@ -307,7 +339,6 @@ public class Mixing extends JFrame {
         trackStates[index] = !trackStates[index];
     }
 
-    // 모든 트랙 색깔을 토글하는 메서드 (Play All 버튼에서 호출)
     private void toggleAllTracks() {
         for (int i = 0; i < trackStates.length; i++) {
             if (trackStates[i]) {
@@ -331,7 +362,6 @@ public class Mixing extends JFrame {
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
 
-            // 오디오 길이 (마이크로초 → 초 단위 변환)
             long microseconds = clip.getMicrosecondLength();
             int seconds = (int) (microseconds / 1_000_000);
             clip.close(); // 리소스 해제
@@ -349,13 +379,11 @@ public class Mixing extends JFrame {
     }
     
     private void toggleMetronome() {
-        // 현재 메트로놈 상태 확인
         if (isMetronomePlaying) {
             stopMetronome(); // 재생 중이면 중지
         } else {
             String selectedBPM = (String) metronomeSelector.getSelectedItem(); // 드롭박스에서 선택된 BPM 가져오기
 
-            // 선택된 BPM이 유효한지 확인
             if (selectedBPM != null && !selectedBPM.equals("none")) {
                 playMetronome(selectedBPM); // 유효하면 메트로놈 재생
             } else {
@@ -385,7 +413,6 @@ public class Mixing extends JFrame {
                 return;
         }
 
-        // 기존 메트로놈을 멈추고 새로운 메트로놈 재생
         stopMetronome(); // 현재 재생 중인 메트로놈을 멈춤
 
         try {
@@ -425,7 +452,6 @@ public class Mixing extends JFrame {
         comboBox.setBackground(Color.white);
         comboBox.setForeground(Color.black);
         comboBox.setFont(new Font("Arial", Font.PLAIN, 14));
-
         comboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

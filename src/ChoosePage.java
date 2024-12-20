@@ -4,8 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ChoosePage extends JFrame {
-
-    // JFrame을 protected로 설정하여 다른 클래스에서 접근할 수 있게 함
     protected ChoosePage() {
         // JFrame 기본 설정
         setTitle("Choose Instrument");
