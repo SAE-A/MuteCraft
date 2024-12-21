@@ -33,7 +33,9 @@ public class Mixing extends JFrame {
     public Mixing() {
         setTitle("Mixing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 868, 393);
+        setSize(852, 393);
+        setLocationRelativeTo(null);
+
         
         trackOffsets = new int[4]; // Four tracks initialized with offsets of 0
         for (int i = 0; i < trackOffsets.length; i++) {
@@ -269,7 +271,7 @@ public class Mixing extends JFrame {
 
         // 회색 상자 패널 생성
         JPanel trackPanel = new JPanel();
-        trackPanel.setPreferredSize(new Dimension(760, 60));
+        trackPanel.setPreferredSize(new Dimension(750, 60));
         trackPanel.setBackground(Color.LIGHT_GRAY); // 기본 색깔
         trackPanels.add(trackPanel); // 색깔 상자를 trackPanels 리스트에 추가
         trackPanel.setLayout(null); // null 레이아웃으로 수동 위치 지정

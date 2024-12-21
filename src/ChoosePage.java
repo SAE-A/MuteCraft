@@ -7,7 +7,8 @@ public class ChoosePage extends JFrame {
     protected ChoosePage() {
         // JFrame 기본 설정
         setTitle("Choose Instrument");
-        setBounds(100, 100, 852, 393); // 창 위치 및 크기 설정
+        setSize(852, 393);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout()); // BorderLayout 사용 (전체 프레임에 배치)
 

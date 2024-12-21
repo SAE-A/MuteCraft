@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +32,8 @@ public class ElectricPage extends JFrame {
 
     public ElectricPage() {
         setTitle("Acoustic Guitar");
-        setBounds(100, 100, 868, 393); // 창 위치 및 크기 설정
+        setSize(852, 393);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Container contentPane = getContentPane();
@@ -73,6 +76,7 @@ public class ElectricPage extends JFrame {
         centerPanel.add(metronomebtn);
 
         JPanel rightPanel = new JPanel();
+        rightPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
@@ -204,21 +208,13 @@ public class ElectricPage extends JFrame {
         addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C2.png")), "guitar/electric_C.wav", 522, 80);
         addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F2.png")), "guitar/electric_F.wav", 614, 74);
         addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb2.png")), "guitar/electric_Bb.wav", 693, 74);
-        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim2.png")), "guitar/electric_Bdim.wav", 770, 74);
+        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim2.png")), "guitar/electric_Bdim.wav", 770, 68);
         
         // 패널에 추가
         panel_buttons.add(leftPanel, BorderLayout.WEST);
         panel_buttons.add(centerPanel, BorderLayout.CENTER);
         panel_buttons.add(rightPanel, BorderLayout.EAST);
         contentPane.add(panel_buttons);
-
-        // panel_notes (버튼을 담을 패널)
-        JPanel panel_notes_white = new JPanel();
-        panel_notes_white.setBounds(0, 260, 852, 100); // 윈도우의 세로 260부터 시작, 패널 높이를 100으로 설정 (버튼 간 세로 간격을 충분히 띄우기 위해 높이를 늘림)
-        panel_notes_white.setLayout(new GridLayout(2, 14, 10, 7));  // 14개의 버튼, 2줄로 배치, 간격 설정
-        panel_notes_white.setBackground(null);  // 배경을 투명하게 설정
-        panel_notes_white.setOpaque(false);    // 패널도 투명하게 설정
-        contentPane.add(panel_notes_white);    // contentPane에 패널을 추가
         
         // 화면 표시
         setVisible(true);

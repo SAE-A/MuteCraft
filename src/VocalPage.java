@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,7 +26,8 @@ public class VocalPage extends JFrame {
 
     public VocalPage() {
         setTitle("Vocal");
-        setBounds(100, 100, 868, 393); // 창 위치 및 크기 설정
+        setSize(852, 393);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Container contentPane = getContentPane();
@@ -69,6 +72,7 @@ public class VocalPage extends JFrame {
         centerPanel.add(metronomebtn);
 
         JPanel rightPanel = new JPanel();
+        rightPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);

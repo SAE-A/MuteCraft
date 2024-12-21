@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +32,8 @@ public class AcousticPage extends JFrame {
 
     public AcousticPage() {
         setTitle("Acoustic Guitar");
-        setBounds(100, 100, 868, 393); // 창 위치 및 크기 설정
+        setSize(852, 393);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Container contentPane = getContentPane();
@@ -73,18 +76,19 @@ public class AcousticPage extends JFrame {
         centerPanel.add(metronomebtn);
 
         JPanel rightPanel = new JPanel();
+        rightPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
 
-        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em.png")), "guitar/acoustic_Em.wav", 105, 100);
-        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am.png")), "guitar/acoustic_Am.wav", 219, 95);
-        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm.png")), "guitar/acoustic_Dm.wav", 327, 89);
-        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G.png")), "guitar/acoustic_G.wav", 429, 83);
-        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C.png")), "guitar/acoustic_C.wav", 522, 80);
-        addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F.png")), "guitar/acoustic_F.wav", 614, 74);
-        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb.png")), "guitar/acoustic_Bb.wav", 700, 74);
-        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim.png")), "guitar/acoustic_Bdim.wav", 780, 74);
+        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em.png")), "guitar/acoustic_Em.wav", 105, 90);
+        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am.png")), "guitar/acoustic_Am.wav", 219, 90);
+        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm.png")), "guitar/acoustic_Dm.wav", 327, 84);
+        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G.png")), "guitar/acoustic_G.wav", 429, 78);
+        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C.png")), "guitar/acoustic_C.wav", 522, 75);
+        addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F.png")), "guitar/acoustic_F.wav", 614, 69);
+        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb.png")), "guitar/acoustic_Bb.wav", 700, 69);
+        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim.png")), "guitar/acoustic_Bdim.wav", 780, 58);
         
         backbtn.setIcon(updateImageSize(button_back, 25, 25));
         backbtn.setContentAreaFilled(false);
@@ -198,20 +202,13 @@ public class AcousticPage extends JFrame {
         
         ImageIcon guitarIcon = new ImageIcon(getClass().getResource("/img/acoustic_guitar.png"));
         JLabel guitarLabel = new JLabel(updateImageSize(guitarIcon, 852, 291));
-        guitarLabel.setBounds(0, 100, 852, 291);
+        guitarLabel.setBounds(-10, 100, 852, 291);
         contentPane.add(guitarLabel);
         
         panel_buttons.add(leftPanel, BorderLayout.WEST);
         panel_buttons.add(centerPanel, BorderLayout.CENTER);
         panel_buttons.add(rightPanel, BorderLayout.EAST);
         contentPane.add(panel_buttons);
-
-        JPanel panel_notes_white = new JPanel();
-        panel_notes_white.setBounds(0, 260, 852, 100); // 윈도우의 세로 260부터 시작, 패널 높이를 100으로 설정 (버튼 간 세로 간격을 충분히 띄우기 위해 높이를 늘림)
-        panel_notes_white.setLayout(new GridLayout(2, 14, 10, 7));  // 14개의 버튼, 2줄로 배치, 간격 설정
-        panel_notes_white.setBackground(null);  // 배경을 투명하게 설정
-        panel_notes_white.setOpaque(false);    // 패널도 투명하게 설정
-        contentPane.add(panel_notes_white);    // contentPane에 패널을 추가
         
         setVisible(true);
     }
