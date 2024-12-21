@@ -1,5 +1,9 @@
 import java.awt.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.net.Socket;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,7 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class Mixing extends JFrame {
+public class MixingPage extends JFrame {
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
     private String audioFile1 = "src/resources/lydfiler/audio/record_piano.wav";
@@ -20,7 +24,6 @@ public class Mixing extends JFrame {
 
     private ArrayList<JPanel> trackPanels = new ArrayList<>(); // 트랙의 색깔 상자를 저장할 리스트
     private boolean[] trackStates = {false, false, false}; // 각 트랙의 상태 (색깔 변경 여부)
-    private JLabel nowLabel; // 현재 재생 위치 표시를 위한 이미지
     
     private boolean isMetronomePlaying = false; // 메트로놈 재생 상태
     private Clip metronomeClip; // 메트로놈 오디오 클립
@@ -30,18 +33,37 @@ public class Mixing extends JFrame {
     private int[] trackOffsets;
     private String[] trackFiles = {audioFile1, audioFile2, audioFile3, audioFile4};
 
-    public Mixing() {
-        setTitle("Mixing");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(868, 393);
-        setLocationRelativeTo(null);
+    private DataInputStream dis; // 데이터 입력 스트림
+    private DataOutputStream dos; // 데이터 출력 스트림
+    private Socket socket;
 
+    public MixingPage(Socket socket, String userName) {
+        this.socket = socket;
+
+        try {
+            this.dos = new DataOutputStream(socket.getOutputStream());
+            this.dis = new DataInputStream(socket.getInputStream());
+            
+            // 사용자 이름을 서버에 전송하는 부분
+            dos.writeUTF("/loginMixing " + userName);
+            
+            // 메시지를 수신하는 스레드 시작
+            startListeningForMessages();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         
         trackOffsets = new int[4]; // Four tracks initialized with offsets of 0
         for (int i = 0; i < trackOffsets.length; i++) {
             trackOffsets[i] = 0;
         }
 
+        setTitle("Mixing");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(868, 393);
+        setLocationRelativeTo(null);
+        
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setBackground(Color.WHITE); // 배경색 흰색 설정
@@ -107,7 +129,7 @@ public class Mixing extends JFrame {
                                 new Thread(() -> playAudioWithOffset(trackFiles[trackIndex], offset)).start();
                             }
                         }
-                        Thread.sleep(400); // 1초 단위로 진행
+                        Thread.sleep(400);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -115,7 +137,6 @@ public class Mixing extends JFrame {
             }).start();
         });
         centerTopPanel.add(playAllButton);
-
         
         // Stop 버튼
         JButton stopbtn = new JButton("");
@@ -207,12 +228,6 @@ public class Mixing extends JFrame {
         leftPanel2.setBackground(Color.WHITE); // 배경색 흰색 설정
         contentPane.add(leftPanel2, BorderLayout.WEST);
         
-        ImageIcon nowIcon = new ImageIcon(getClass().getResource("/img/now.png"));
-        Image resizedNowImage = nowIcon.getImage().getScaledInstance(25, 300, Image.SCALE_SMOOTH); // 원하는 크기로 조정
-        nowLabel = new JLabel(new ImageIcon(resizedNowImage)); // 리사이즈된 이미지를 사용
-        nowLabel.setSize(20, 450); // 이미지 크기 설정 (필요시 이 부분도 조정)
-        //contentPane.add(nowLabel); // 메인 패널에 추가
-        
         leftPanel2.add(createButtonWithRectangle("/img/piano.png", "piano", audioFile1, 0));
         leftPanel2.add(createButtonWithRectangle("/img/acousticGuitar.png", "acoustic", audioFile2, 1));
         leftPanel2.add(createButtonWithRectangle("/img/electricGuitar.png", "electric", audioFile3, 2));
@@ -242,7 +257,7 @@ public class Mixing extends JFrame {
             e.printStackTrace();
         }
     }
-
+    
     // 버튼과 색깔 상자를 포함하는 패널 생성
     private JPanel createButtonWithRectangle(String imagePath, String text, String audioFile, int index) {
         JPanel panel = new JPanel();
@@ -288,21 +303,12 @@ public class Mixing extends JFrame {
 
         // 작은 색깔 박스를 trackPanel에 추가
         smallTrackPanel.setBounds(5, yPosition, smallTrackPanel.getPreferredSize().width, smallTrackPanel.getPreferredSize().height);
-        trackPanel.add(smallTrackPanel);
-        
-        // nowLabel을 smallTrackPanel 위에 추가
-        nowLabel.setBounds(10, yPosition + 10, 25, 25); // 적절한 위치 조정
-        trackPanel.add(nowLabel); // nowLabel 추가
-
-        // 드래그 이벤트 추가
         smallTrackPanel.addMouseListener(new MouseAdapter() {
             private int startX;
-
             @Override
             public void mousePressed(MouseEvent e) {
                 startX = e.getX(); // 드래그 시작 위치 저장
             }
-
             @Override
             public void mouseReleased(MouseEvent e) {
                 int newX = e.getXOnScreen() - smallTrackPanel.getParent().getLocationOnScreen().x; // 새로운 X 위치
@@ -310,9 +316,12 @@ public class Mixing extends JFrame {
                 int offset = newStart / 10; // 10px 당 1초로 간주 (조정 가능)
                 trackOffsets[index] = offset; // 오프셋 저장
                 smallTrackPanel.setBounds(newStart, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight());
-                nowLabel.setBounds(newStart + 10, yPosition + 10, 25, 25); // nowLabel 위치 조정
+                
+                // 서버에 트랙 오프셋 변경 정보 전송
+                sendTrackOffsetToServer(index, offset);
             }
         });
+        trackPanel.add(smallTrackPanel);
         panel.add(playButton);
         panel.add(trackPanel);
         return panel; // panel을 반환
@@ -444,7 +453,6 @@ public class Mixing extends JFrame {
                 System.out.println("선택한 BPM의 파일이 없습니다.");
                 return;
         }
-
         stopMetronome(); // 현재 재생 중인 메트로놈을 멈춤
 
         try {
@@ -496,13 +504,83 @@ public class Mixing extends JFrame {
             }
         });
     }
+    
+    // 트랙 오프셋 정보를 서버에 전송하는 메서드
+    private void sendTrackOffsetToServer(int index, int offset) {
+        // 메시지 형식: /trackOffset <트랙 인덱스> <오프셋>
+        String message = "/trackOffset " + index + " " + offset;
+        // 서버에 메시지 전송 (여기서는 socketOutputStream 변수를 사용해야 합니다)
+        try {
+            dos.writeUTF(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    // 서버로부터 트랙 오프셋 변경 메시지를 받는 메서드를 추가 (예: 스레드에서 호출)
+    private void receiveTrackOffsetFromServer(String message) {
+        // 메시지 형식이 올바른지 확인
+        if (message.startsWith("/trackOffset ")) {
+            String[] parts = message.split(" ");
+            if (parts.length == 3) {
+                try {
+                    int trackIndex = Integer.parseInt(parts[1]);
+                    int offset = Integer.parseInt(parts[2]);
+                    updateTrackOffsetFromServer(trackIndex, offset);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid number format: " + e.getMessage());
+                }
+            }
+        } else {
+            // /trackOffset 메시지가 아닐 경우 처리
+            System.out.println("Received message: " + message);
+        }
+    }
+
+    private void updateTrackOffsetFromServer(int index, int offset) {
+        // 오프셋을 업데이트
+        trackOffsets[index] = offset;
+
+        // 작은 색깔 박스만 이동시키기
+        if (index < trackPanels.size()) {
+            JPanel trackPanel = trackPanels.get(index); // 회색 박스
+            Component[] components = trackPanel.getComponents();
+
+            // 작은 색깔 박스가 존재하는지 확인
+            if (components.length > 0 && components[0] instanceof JPanel) {
+                JPanel smallTrackPanel = (JPanel) components[0]; // 작은 색깔 박스
+                int newX = offset * 10; // 10px 당 1초로 간주
+                int yPosition = (trackPanel.getPreferredSize().height - smallTrackPanel.getPreferredSize().height) / 2;
+
+                // 작은 색깔 박스 위치만 변경
+                smallTrackPanel.setBounds(newX, yPosition, smallTrackPanel.getWidth(), smallTrackPanel.getHeight());
+                trackPanel.revalidate(); // 레이아웃 갱신
+                trackPanel.repaint(); // 화면 다시 그리기
+            }
+        }
+    }
+    
+    private void startListeningForMessages() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    String message = dis.readUTF(); // 서버로부터 메시지 수신
+                    receiveTrackOffsetFromServer(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }).start();
+    }
+    
     public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
+        SwingUtilities.invokeLater(() -> {
             try {
-                Mixing frame = new Mixing();
-                frame.setVisible(true);
-            } catch (Exception e) {
+                Socket socket = new Socket("localhost", 12345);
+                MixingPage mixingPage = new MixingPage(socket, "UserName"); // 사용자 이름도 전달
+                mixingPage.setVisible(true); // MixingPage 창 띄우기
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         });

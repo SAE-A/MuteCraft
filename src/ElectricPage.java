@@ -5,7 +5,9 @@ import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.SequenceInputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -181,13 +183,18 @@ public class ElectricPage extends JFrame {
         addbtn.setBorderPainted(false);
         addbtn.setFocusPainted(false);
         addbtn.setPreferredSize(new Dimension(40, 40));
-        
         addbtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("add 버튼 클릭!");
-                Mixing mixing = new Mixing();
-                mixing.setVisible(true);
+                try {
+                    // MixingClient를 생성하고 설정
+                    MixingClient mixingClient = new MixingClient(); // MixingClient 인스턴스 생성
+                    mixingClient.setVisible(true); // MixingClient 창 띄우기
+                    // MixingClient에서 소켓 연결 및 사용자 이름 설정을 처리할 것입니다.
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // 예외 처리
+                }
             }
         });
         

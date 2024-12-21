@@ -21,20 +21,15 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 public class ChatServer extends JFrame {
-
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
     JTextArea textArea;
     private JTextField txtPortNumber;
-
     private ServerSocket socket; // 서버소켓
     private Socket client_socket; // accept() 에서 생성된 client 소켓
     private Vector<UserService> UserVec = new Vector<>(); // 연결된 사용자를 저장할 벡터, ArrayList와 같이 동적 배열을 만들어주는 컬렉션 객체이나 동기화로 인해 안전성 향상
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
-    /**
-     * Launch the application.
-     */
     public static void main(String[] args) {   // 스윙 비주얼 디자이너를 이용해 GUI를 만들면 자동으로 생성되는 main 함수
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -47,7 +42,6 @@ public class ChatServer extends JFrame {
             }
         });
     }
-
 
     public ChatServer() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -125,7 +119,6 @@ public class ChatServer extends JFrame {
     }
 
     // User 당 생성되는 Thread, 유저의 수만큼 스레스 생성
-    // Read One 에서 대기 -> Write All
     class UserService extends Thread {
         private InputStream is;
         private OutputStream os;
@@ -154,7 +147,6 @@ public class ChatServer extends JFrame {
                 AppendText("userService error");
             }
         }
-
 
         // 클라이언트로 메시지 전송
         public void WriteOne(String msg) {
@@ -185,26 +177,25 @@ public class ChatServer extends JFrame {
         }
 
         // 서버에서 사용자 메시지를 수신하는 부분
+        @Override
         public void run() {
             while (true) {
                 try {
                     String msg = dis.readUTF(); // 메시지 수신
                     msg = msg.trim();           // 공백 제거
                     AppendText(msg);            // 서버 콘솔에 출력
-                    WriteAll(msg + "\n", this); // 다른 클라이언트들에게만 전송
+                    WriteAll(msg, this);        // 모든 클라이언트에게 메시지 전송
+                    
+                    // 트랙 오프셋 변경 메시지 처리
+                    if (msg.startsWith("/trackOffset ")) {
+                        String[] parts = msg.split(" ");
+                        int trackIndex = Integer.parseInt(parts[1]);
+                        int offset = Integer.parseInt(parts[2]);
+                        WriteAll("/trackOffset " + trackIndex + " " + offset, this); // 다른 클라이언트에게 전송
+                    }
                 } catch (IOException e) {
                     AppendText("dis.readUTF() error: " + e.getMessage());
-                    try {
-                        dos.close();
-                        dis.close();
-                        client_socket.close();
-                        user_vc.removeElement(this); // 현재 클라이언트 제거
-                        AppendText("사용자 퇴장. 남은 참가자 수 " + user_vc.size());
-                        break;
-                    } catch (Exception ee) {
-                        AppendText("에러 발생 시 클라이언트 처리 실패: " + ee.getMessage());
-                        break;
-                    }
+                    break;
                 }
             }
         }

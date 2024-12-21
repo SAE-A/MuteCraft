@@ -128,7 +128,6 @@ public class ChatPage extends JFrame {
         btnSend.setBorderPainted(false);
         btnSend.setFocusPainted(false);
         inputPanel.add(btnSend);
-        //contentPane.add(btnSend);
 
         try {
             socket = new Socket(ipAddress, Integer.parseInt(port));
