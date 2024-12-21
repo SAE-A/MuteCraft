@@ -11,7 +11,7 @@ public class StartPage {
 
         // 기본 설정
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(852, 393);  // 창 크기 설정
+        frame.setSize(868, 393);  // 창 크기 설정
         frame.setLocationRelativeTo(null);  // 창을 화면 중앙에 배치
 
         // BackgroundPanel 생성 (배경 이미지가 그려진 패널)

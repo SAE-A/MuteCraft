@@ -26,7 +26,7 @@ public class VocalPage extends JFrame {
 
     public VocalPage() {
         setTitle("Vocal");
-        setSize(852, 393);
+        setSize(868, 393);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -72,7 +72,6 @@ public class VocalPage extends JFrame {
         centerPanel.add(metronomebtn);
 
         JPanel rightPanel = new JPanel();
-        rightPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);

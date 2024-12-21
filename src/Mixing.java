@@ -33,7 +33,7 @@ public class Mixing extends JFrame {
     public Mixing() {
         setTitle("Mixing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(852, 393);
+        setSize(868, 393);
         setLocationRelativeTo(null);
 
         

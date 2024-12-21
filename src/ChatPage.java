@@ -23,7 +23,7 @@ public class ChatPage extends JFrame {
 
         setTitle("Chatting");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(852, 393);
+        setSize(868, 393);
         setLocationRelativeTo(null);
         contentPane = new JPanel();
         contentPane.setBackground(Color.WHITE);
@@ -82,7 +82,7 @@ public class ChatPage extends JFrame {
         RoundedPanel textPanel = new RoundedPanel(15);
         textPanel.setLayout(new BorderLayout());
         textPanel.setBackground(new Color(230, 230, 230));
-        textPanel.setBounds(12, 60, 814, 230);
+        textPanel.setBounds(12, 60, 830, 230);
         textPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 30, 30));
         contentPane.add(textPanel);
 
@@ -106,7 +106,7 @@ public class ChatPage extends JFrame {
         RoundedPanel inputPanel = new RoundedPanel(15);
         inputPanel.setLayout(null);
         inputPanel.setBackground(new Color(200, 200, 200));
-        inputPanel.setBounds(12, 300, 814, 45);
+        inputPanel.setBounds(12, 300, 830, 45);
         contentPane.add(inputPanel);
 
         txtInput = new JTextField();
@@ -123,7 +123,7 @@ public class ChatPage extends JFrame {
         sendIcon = new ImageIcon(resizedImgSend);
 
         JButton btnSend = new JButton(sendIcon);
-        btnSend.setBounds(770, 6, 30, 30);
+        btnSend.setBounds(790, 6, 30, 30);
         btnSend.setContentAreaFilled(false);
         btnSend.setBorderPainted(false);
         btnSend.setFocusPainted(false);

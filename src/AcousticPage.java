@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +30,7 @@ public class AcousticPage extends JFrame {
 
     public AcousticPage() {
         setTitle("Acoustic Guitar");
-        setSize(852, 393);
+        setSize(868, 393);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -76,19 +74,18 @@ public class AcousticPage extends JFrame {
         centerPanel.add(metronomebtn);
 
         JPanel rightPanel = new JPanel();
-        rightPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
 
-        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em.png")), "guitar/acoustic_Em.wav", 105, 90);
-        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am.png")), "guitar/acoustic_Am.wav", 219, 90);
-        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm.png")), "guitar/acoustic_Dm.wav", 327, 84);
-        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G.png")), "guitar/acoustic_G.wav", 429, 78);
-        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C.png")), "guitar/acoustic_C.wav", 522, 75);
-        addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F.png")), "guitar/acoustic_F.wav", 614, 69);
-        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb.png")), "guitar/acoustic_Bb.wav", 700, 69);
-        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim.png")), "guitar/acoustic_Bdim.wav", 780, 58);
+        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em.png")), "guitar/acoustic_Em.wav", 105, 100);
+        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am.png")), "guitar/acoustic_Am.wav", 219, 95);
+        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm.png")), "guitar/acoustic_Dm.wav", 327, 89);
+        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G.png")), "guitar/acoustic_G.wav", 429, 83);
+        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C.png")), "guitar/acoustic_C.wav", 522, 80);
+        addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F.png")), "guitar/acoustic_F.wav", 614, 74);
+        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb.png")), "guitar/acoustic_Bb.wav", 700, 74);
+        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim.png")), "guitar/acoustic_Bdim.wav", 780, 74);
         
         backbtn.setIcon(updateImageSize(button_back, 25, 25));
         backbtn.setContentAreaFilled(false);
@@ -100,7 +97,7 @@ public class AcousticPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 ChoosePage page = new ChoosePage();
                 page.setLocation(350, 220);
-            	setVisible(false);
+               setVisible(false);
                 dispose();  // 현재 창 닫기
             }
         });
@@ -137,7 +134,7 @@ public class AcousticPage extends JFrame {
         recordbtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	startRecording();  // 녹음 시작
+               startRecording();  // 녹음 시작
             }
         });
         
@@ -202,7 +199,7 @@ public class AcousticPage extends JFrame {
         
         ImageIcon guitarIcon = new ImageIcon(getClass().getResource("/img/acoustic_guitar.png"));
         JLabel guitarLabel = new JLabel(updateImageSize(guitarIcon, 852, 291));
-        guitarLabel.setBounds(-10, 100, 852, 291);
+        guitarLabel.setBounds(0, 100, 852, 291);
         contentPane.add(guitarLabel);
         
         panel_buttons.add(leftPanel, BorderLayout.WEST);

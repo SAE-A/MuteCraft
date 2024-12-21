@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +30,7 @@ public class ElectricPage extends JFrame {
 
     public ElectricPage() {
         setTitle("Acoustic Guitar");
-        setSize(852, 393);
+        setSize(868, 393);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -76,7 +74,6 @@ public class ElectricPage extends JFrame {
         centerPanel.add(metronomebtn);
 
         JPanel rightPanel = new JPanel();
-        rightPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
@@ -128,7 +125,7 @@ public class ElectricPage extends JFrame {
         recordbtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	startRecording();  // 녹음 시작
+               startRecording();  // 녹음 시작
             }
         });
         
@@ -208,7 +205,7 @@ public class ElectricPage extends JFrame {
         addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C2.png")), "guitar/electric_C.wav", 522, 80);
         addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F2.png")), "guitar/electric_F.wav", 614, 74);
         addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb2.png")), "guitar/electric_Bb.wav", 693, 74);
-        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim2.png")), "guitar/electric_Bdim.wav", 770, 68);
+        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim2.png")), "guitar/electric_Bdim.wav", 770, 74);
         
         // 패널에 추가
         panel_buttons.add(leftPanel, BorderLayout.WEST);

@@ -34,7 +34,7 @@ public class PianoPage extends JFrame {
 
     public PianoPage() {
         setTitle("Piano");
-        setSize(852, 393);
+        setSize(868, 393);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -85,7 +85,6 @@ public class PianoPage extends JFrame {
 
         // 오른쪽 패널
         JPanel rightPanel = new JPanel();
-        rightPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
         rightPanel.setBackground(Color.WHITE); // 배경색 하얀색으로 설정
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
@@ -211,7 +210,7 @@ public class PianoPage extends JFrame {
         contentPane.add(panel_buttons);
 
         JPanel panel_notes_white = new JPanel();
-        panel_notes_white.setBounds(-3, 250, 852, 100); // 윈도우의 세로 250부터 시작, 패널 높이를 100으로 설정 (버튼 간 세로 간격을 충분히 띄우기 위해 높이를 늘림)
+        panel_notes_white.setBounds(0, 250, 852, 100); // 윈도우의 세로 250부터 시작, 패널 높이를 100으로 설정 (버튼 간 세로 간격을 충분히 띄우기 위해 높이를 늘림)
         panel_notes_white.setLayout(new GridLayout(2, 14, 10, 7));  // 14개의 버튼, 2줄로 배치, 간격 설정
         panel_notes_white.setBackground(null);  // 배경을 투명하게 설정
         panel_notes_white.setOpaque(false);    // 패널도 투명하게 설정
