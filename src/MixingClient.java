@@ -29,18 +29,19 @@ public class MixingClient extends JFrame {
 
     public MixingClient() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300, 400);
+        setSize(254, 321);
+        setLocationRelativeTo(null);
         setLocationRelativeTo(null);
         contentPane = new JPanel();
         contentPane.setLayout(null);
         setContentPane(contentPane);
 
-        JLabel lblUserName = new JLabel("User Name");
+        JLabel lblUserName = new JLabel("Mixing");
         lblUserName.setBounds(12, 39, 82, 33);
         contentPane.add(lblUserName);
 
         txtUserName = new JTextField();
-        txtUserName.setBounds(101, 39, 160, 33);
+        txtUserName.setBounds(101, 39, 116, 33);
         contentPane.add(txtUserName);
         txtUserName.setColumns(10);
 
@@ -49,7 +50,7 @@ public class MixingClient extends JFrame {
         contentPane.add(lblIpAddress);
 
         txtIpAddress = new JTextField("127.0.0.1");
-        txtIpAddress.setBounds(101, 100, 160, 33);
+        txtIpAddress.setBounds(101, 100, 116, 33);
         contentPane.add(txtIpAddress);
 
         JLabel lblPortNumber = new JLabel("Port Number");
@@ -57,11 +58,11 @@ public class MixingClient extends JFrame {
         contentPane.add(lblPortNumber);
 
         txtPortNumber = new JTextField("30000");
-        txtPortNumber.setBounds(101, 163, 160, 33);
+        txtPortNumber.setBounds(101, 163, 116, 33);
         contentPane.add(txtPortNumber);
 
         JButton btnConnect = new JButton("Connect");
-        btnConnect.setBounds(12, 223, 250, 38);
+        btnConnect.setBounds(12, 223, 205, 38);
         contentPane.add(btnConnect);
 
         btnConnect.addActionListener(new ActionListener() {
@@ -70,6 +71,16 @@ public class MixingClient extends JFrame {
                 connectToServer();
             }
         });
+        
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                connectToServer();
+            }
+        };
+        txtUserName.addActionListener(actionListener);
+        txtIpAddress.addActionListener(actionListener);
+        txtPortNumber.addActionListener(actionListener);
     }
 
     private void connectToServer() {

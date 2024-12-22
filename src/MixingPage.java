@@ -216,8 +216,9 @@ public class MixingPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Chat button clicked!");  // 디버깅
                 ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
-                chatClient.setLocation(650, 300);
+                chatClient.setLocation(650, 200);
                 chatClient.setVisible(true);  // ChatClient 창 띄우기
+                dispose();
             }
         });
         topPanel.add(chatButton, BorderLayout.EAST); // 채팅 버튼을 topPanel의 오른쪽에 추가

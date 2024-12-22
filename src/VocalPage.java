@@ -190,6 +190,7 @@ public class VocalPage extends JFrame {
                 } catch (Exception ex) {
                     ex.printStackTrace(); // 예외 처리
                 }
+                dispose();
             }
         });
         
