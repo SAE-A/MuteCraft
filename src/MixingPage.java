@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -32,7 +33,7 @@ public class MixingPage extends JFrame {
     
     private int[] trackOffsets;
     private String[] trackFiles = {audioFile1, audioFile2, audioFile3, audioFile4};
-
+    
     private DataInputStream dis; // 데이터 입력 스트림
     private DataOutputStream dos; // 데이터 출력 스트림
     private Socket socket;
@@ -100,7 +101,7 @@ public class MixingPage extends JFrame {
         leftLabel.setFont(new Font("Arial", Font.BOLD, 20));
         leftTopPanel.add(leftLabel);
 
-        // 중앙 (Play All 버튼과 Stop 버튼)
+        // 중앙
         JPanel centerTopPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         centerTopPanel.setBackground(Color.WHITE);
 
@@ -137,16 +138,6 @@ public class MixingPage extends JFrame {
             }).start();
         });
         centerTopPanel.add(playAllButton);
-        
-        // Stop 버튼
-        JButton stopbtn = new JButton("");
-        ImageIcon button_stop = new ImageIcon(getClass().getResource("/img/button_stop.png"));
-        stopbtn.setIcon(updateImageSize(button_stop, 25, 25));
-        stopbtn.setContentAreaFilled(false);
-        stopbtn.setBorderPainted(false);
-        stopbtn.setFocusPainted(false);
-        stopbtn.setPreferredSize(new Dimension(40, 40));
-        centerTopPanel.add(stopbtn);
         
         // 메트로놈 버튼
         JButton metronomebtn = new JButton("");
@@ -215,11 +206,25 @@ public class MixingPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Chat button clicked!");  // 디버깅
-                ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
-                chatClient.setLocation(650, 300);
-                chatClient.setVisible(true);  // ChatClient 창 띄우기
+
+                // 창 1, 2에서 입력된 이름을 각각 가져옴
+                String userName1 = MixingClient.getUserName(0);  // 첫 번째 창의 사용자 이름 가져오기
+                String userName2 = MixingClient.getUserName(1);  // 두 번째 창의 사용자 이름 가져오기
+
+                // 첫 번째 사용자 이름이 비어있지 않으면 ChatPage로 이동
+                if (userName1 != null && !userName1.isEmpty()) {
+                    new ChatPage(userName1, "127.0.0.1", "30000").setVisible(true);
+                    dispose();
+                }
+
+                // 두 번째 사용자 이름이 비어있지 않으면 ChatPage로 이동
+                if (userName2 != null && !userName2.isEmpty()) {
+                    new ChatPage(userName2, "127.0.0.1", "30000").setVisible(true);
+                    dispose();
+                }
             }
         });
+
         topPanel.add(chatButton, BorderLayout.EAST); // 채팅 버튼을 topPanel의 오른쪽에 추가
 
         // 왼쪽에 세로로 정렬된 버튼 패널 생성
@@ -327,7 +332,7 @@ public class MixingPage extends JFrame {
         return panel; // panel을 반환
     }
 
-    // 오디오 재생 메서드 (시작 시간 오프셋 추가)
+    // 오디오 재생 메서드
     private void playAudioWithOffset(String filePath, int offset) {
         try {
             File audioFile = new File(filePath);

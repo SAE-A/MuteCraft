@@ -8,7 +8,7 @@ public class ChatClient extends JFrame {
     private JTextField txtUserName;
     private JTextField txtIpAddress;
     private JTextField txtPortNumber;
-
+    
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -65,7 +65,7 @@ public class ChatClient extends JFrame {
         txtIpAddress.addActionListener(action);
         txtPortNumber.addActionListener(action);
     }
-
+    
     class Myaction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {

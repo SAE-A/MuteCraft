@@ -35,6 +35,7 @@ public class ChoosePage extends JFrame {
                 ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
                 chatClient.setLocation(650, 300);
                 chatClient.setVisible(true);  // ChatClient 창 띄우기
+                dispose();
             }
         });
 
@@ -82,6 +83,7 @@ public class ChoosePage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 VocalPage vocal = new VocalPage(); // MicPage.java 실행
                 vocal.setLocation(350, 220);
+                dispose();
             }
         });
         
@@ -92,6 +94,7 @@ public class ChoosePage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 PianoPage piano = new PianoPage(); // PianoPage.java 실행
                 piano.setLocation(350, 220);
+                dispose();
             }
         });
         
@@ -102,6 +105,7 @@ public class ChoosePage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 AcousticPage aGuitar = new AcousticPage(); // AcousticPage.java 실행
                 aGuitar.setLocation(350, 220);
+                dispose();
             }
         });
 
@@ -112,6 +116,7 @@ public class ChoosePage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 ElectricPage eGuitar = new ElectricPage(); // ElectricPage.java 실행
                 eGuitar.setLocation(350, 220);
+                dispose();
             }
         });
 
