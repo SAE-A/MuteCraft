@@ -25,7 +25,8 @@ public class ChatClient extends JFrame {
 
     public ChatClient() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 254, 321);
+        setSize(254, 321);
+        setLocationRelativeTo(null);
         contentPane = new JPanel();
         contentPane.setLayout(null);
         setContentPane(contentPane);

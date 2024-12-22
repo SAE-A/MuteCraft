@@ -207,21 +207,10 @@ public class MixingPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Chat button clicked!");  // 디버깅
 
-                // 창 1, 2에서 입력된 이름을 각각 가져옴
-                String userName1 = MixingClient.getUserName(0);  // 첫 번째 창의 사용자 이름 가져오기
-                String userName2 = MixingClient.getUserName(1);  // 두 번째 창의 사용자 이름 가져오기
-
-                // 첫 번째 사용자 이름이 비어있지 않으면 ChatPage로 이동
-                if (userName1 != null && !userName1.isEmpty()) {
-                    new ChatPage(userName1, "127.0.0.1", "30000").setVisible(true);
-                    dispose();
-                }
-
-                // 두 번째 사용자 이름이 비어있지 않으면 ChatPage로 이동
-                if (userName2 != null && !userName2.isEmpty()) {
-                    new ChatPage(userName2, "127.0.0.1", "30000").setVisible(true);
-                    dispose();
-                }
+                ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
+                chatClient.setLocation(650, 200);
+                chatClient.setVisible(true);  // ChatClient 창 띄우기
+                dispose();
             }
         });
 
