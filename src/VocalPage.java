@@ -183,10 +183,8 @@ public class VocalPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("add 버튼 클릭!");
                 try {
-                    // MixingClient를 생성하고 설정
                     MixingClient mixingClient = new MixingClient(); // MixingClient 인스턴스 생성
                     mixingClient.setVisible(true); // MixingClient 창 띄우기
-                    // MixingClient에서 소켓 연결 및 사용자 이름 설정을 처리할 것입니다.
                 } catch (Exception ex) {
                     ex.printStackTrace(); // 예외 처리
                 }

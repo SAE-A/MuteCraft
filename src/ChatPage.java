@@ -68,9 +68,16 @@ public class ChatPage extends JFrame {
         btnBack.setBorderPainted(false);
         btnBack.setFocusPainted(false);
         btnBack.setPreferredSize(new Dimension(25, 25));
+        btnBack.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ChoosePage page = new ChoosePage();
+                page.setLocation(350, 220);
+            	setVisible(false);
+                dispose();  // 현재 창 닫기
+            }
+        });        
         panel_buttons.add(btnBack);
-
-        btnBack.addActionListener(e -> dispose());
 
         JLabel leftLabel = new JLabel("Chat");
         leftLabel.setBackground(Color.WHITE);

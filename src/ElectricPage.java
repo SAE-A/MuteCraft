@@ -31,7 +31,7 @@ public class ElectricPage extends JFrame {
     private ArrayList<File> codeFiles = new ArrayList<>(); // 코드 음원 파일 목록
 
     public ElectricPage() {
-        setTitle("Acoustic Guitar");
+        setTitle("Electric Guitar");
         setSize(868, 393);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -188,10 +188,8 @@ public class ElectricPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("add 버튼 클릭!");
                 try {
-                    // MixingClient를 생성하고 설정
                     MixingClient mixingClient = new MixingClient(); // MixingClient 인스턴스 생성
                     mixingClient.setVisible(true); // MixingClient 창 띄우기
-                    // MixingClient에서 소켓 연결 및 사용자 이름 설정을 처리할 것입니다.
                 } catch (Exception ex) {
                     ex.printStackTrace(); // 예외 처리
                 }
@@ -202,18 +200,18 @@ public class ElectricPage extends JFrame {
         // 기타 이미지 추가
         ImageIcon guitarIcon = new ImageIcon(getClass().getResource("/img/electric_guitar.png"));
         JLabel guitarLabel = new JLabel(updateImageSize(guitarIcon, 852, 291));
-        guitarLabel.setBounds(0, 100, 852, 291);
+        guitarLabel.setBounds(0, 100, 856, 291);
         contentPane.add(guitarLabel);
         
         // 코드 버튼 추가 (Em, Am, Dm 등)
-        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em2.png")), "guitar/electric_Em.wav", 115, 100);
-        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am2.png")), "guitar/electric_Am.wav", 224, 95);
-        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm2.png")), "guitar/electric_Dm.wav", 330, 89);
-        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G2.png")), "guitar/electric_G.wav", 429, 83);
-        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C2.png")), "guitar/electric_C.wav", 522, 80);
+        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em2.png")), "guitar/electric_Em.wav", 118, 100);
+        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am2.png")), "guitar/electric_Am.wav", 228, 95);
+        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm2.png")), "guitar/electric_Dm.wav", 334, 89);
+        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G2.png")), "guitar/electric_G.wav", 432, 83);
+        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C2.png")), "guitar/electric_C.wav", 525, 80);
         addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F2.png")), "guitar/electric_F.wav", 614, 74);
-        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb2.png")), "guitar/electric_Bb.wav", 693, 74);
-        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim2.png")), "guitar/electric_Bdim.wav", 770, 74);
+        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb2.png")), "guitar/electric_Bb.wav", 695, 74);
+        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim2.png")), "guitar/electric_Bdim.wav", 773, 74);
         
         // 패널에 추가
         panel_buttons.add(leftPanel, BorderLayout.WEST);

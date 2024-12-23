@@ -80,15 +80,6 @@ public class AcousticPage extends JFrame {
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.add(addbtn);
 
-        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em.png")), "guitar/acoustic_Em.wav", 105, 100);
-        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am.png")), "guitar/acoustic_Am.wav", 219, 95);
-        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm.png")), "guitar/acoustic_Dm.wav", 327, 89);
-        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G.png")), "guitar/acoustic_G.wav", 429, 83);
-        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C.png")), "guitar/acoustic_C.wav", 522, 80);
-        addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F.png")), "guitar/acoustic_F.wav", 614, 74);
-        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb.png")), "guitar/acoustic_Bb.wav", 700, 74);
-        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim.png")), "guitar/acoustic_Bdim.wav", 780, 74);
-        
         backbtn.setIcon(updateImageSize(button_back, 25, 25));
         backbtn.setContentAreaFilled(false);
         backbtn.setBorderPainted(false);
@@ -194,10 +185,8 @@ public class AcousticPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("add 버튼 클릭!");
                 try {
-                    // MixingClient를 생성하고 설정
                     MixingClient mixingClient = new MixingClient(); // MixingClient 인스턴스 생성
                     mixingClient.setVisible(true); // MixingClient 창 띄우기
-                    // MixingClient에서 소켓 연결 및 사용자 이름 설정을 처리할 것입니다.
                 } catch (Exception ex) {
                     ex.printStackTrace(); // 예외 처리
                 }
@@ -207,8 +196,17 @@ public class AcousticPage extends JFrame {
         
         ImageIcon guitarIcon = new ImageIcon(getClass().getResource("/img/acoustic_guitar.png"));
         JLabel guitarLabel = new JLabel(updateImageSize(guitarIcon, 852, 291));
-        guitarLabel.setBounds(0, 100, 852, 291);
+        guitarLabel.setBounds(0, 100, 856, 291);
         contentPane.add(guitarLabel);
+        
+        addCodeButton(contentPane, "Em", new ImageIcon(getClass().getResource("/img/g_notes/icon_Em.png")), "guitar/acoustic_Em.wav", 108, 100);
+        addCodeButton(contentPane, "Am", new ImageIcon(getClass().getResource("/img/g_notes/icon_Am.png")), "guitar/acoustic_Am.wav", 223, 95);
+        addCodeButton(contentPane, "Dm", new ImageIcon(getClass().getResource("/img/g_notes/icon_Dm.png")), "guitar/acoustic_Dm.wav", 328, 89);
+        addCodeButton(contentPane, "G", new ImageIcon(getClass().getResource("/img/g_notes/icon_G.png")), "guitar/acoustic_G.wav", 430, 83);
+        addCodeButton(contentPane, "C", new ImageIcon(getClass().getResource("/img/g_notes/icon_C.png")), "guitar/acoustic_C.wav", 525, 80);
+        addCodeButton(contentPane, "F", new ImageIcon(getClass().getResource("/img/g_notes/icon_F.png")), "guitar/acoustic_F.wav", 616, 74);
+        addCodeButton(contentPane, "Bb", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bb.png")), "guitar/acoustic_Bb.wav", 698, 74);
+        addCodeButton(contentPane, "Bdim", new ImageIcon(getClass().getResource("/img/g_notes/icon_Bdim.png")), "guitar/acoustic_Bdim.wav", 777, 74);
         
         panel_buttons.add(leftPanel, BorderLayout.WEST);
         panel_buttons.add(centerPanel, BorderLayout.CENTER);
