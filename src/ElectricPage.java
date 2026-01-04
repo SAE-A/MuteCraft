@@ -32,7 +32,7 @@ public class ElectricPage extends JFrame {
 
     public ElectricPage() {
         setTitle("Electric Guitar");
-        setSize(868, 393);
+        setSize(850, 393);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

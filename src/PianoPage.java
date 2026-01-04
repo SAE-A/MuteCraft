@@ -100,9 +100,8 @@ public class PianoPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ChoosePage page = new ChoosePage();
-                page.setLocation(350, 220);
                 setVisible(false);
-                dispose();  // 현재 창 닫기
+                dispose();
             }
         });
         

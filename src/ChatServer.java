@@ -30,11 +30,11 @@ public class ChatServer extends JFrame {
     private Vector<UserService> UserVec = new Vector<>(); // 연결된 사용자를 저장할 벡터, ArrayList와 같이 동적 배열을 만들어주는 컬렉션 객체이나 동기화로 인해 안전성 향상
     private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
-    public static void main(String[] args) {   // 스윙 비주얼 디자이너를 이용해 GUI를 만들면 자동으로 생성되는 main 함수
+    public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    ChatServer frame = new ChatServer();      // JavaChatServer 클래스의 객체 생성
+                    ChatServer frame = new ChatServer();
                     frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();

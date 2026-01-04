@@ -5,167 +5,159 @@ import java.awt.event.ActionListener;
 
 public class ChoosePage extends JFrame {
 	protected ChoosePage() {
-	    // JFrame 기본 설정
-	    setTitle("Choose Instrument");
-	    setSize(868, 393);
-	    setLocationRelativeTo(null);
-	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    setLayout(new BorderLayout()); // BorderLayout 사용 (전체 프레임에 배치)
+		// JFrame 기본 설정
+		setTitle("Choose Instrument");
+		setSize(868, 393);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	    // 배경색 설정
-	    getContentPane().setBackground(Color.WHITE); // 하얀색 배경
+		// 메인 패널 생성
+		JPanel mainPanel = new JPanel(new BorderLayout()) {
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-	    // 상단 패널 생성
-	    JPanel topPanel = new JPanel();
-	    topPanel.setBackground(Color.WHITE);
-	    topPanel.setLayout(new BorderLayout()); // BorderLayout 사용
+				// 배경색 설정 - 초록 그라데이션
+				GradientPaint gp = new GradientPaint(
+						0, 0, new Color(82, 234, 145),
+						0, getHeight(), new Color(39, 174, 96)
+				);
+				g2d.setPaint(gp);
+				g2d.fillRect(0, 0, getWidth(), getHeight());
+			}
+		};
 
-	    // 뒤로가기 버튼
-	    JButton backbtn = new JButton();
-	    ImageIcon button_back = new ImageIcon(getClass().getResource("/img/button_back.png"));
-	    backbtn.setIcon(updateImageSize(button_back, 25, 25));
-	    backbtn.setContentAreaFilled(false);
-	    backbtn.setBorderPainted(false);
-	    backbtn.setFocusPainted(false);
-	    backbtn.setPreferredSize(new Dimension(40, 40));
-	    backbtn.addActionListener(new ActionListener() {
-	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            System.out.println("Back button clicked!");
-	            new StartPage();
-	            setVisible(false);
-	            dispose();  // 현재 창 닫기
-	        }
-	    });
+		// 상단 패널 생성 (투명 설정)
+		JPanel topPanel = new JPanel();
+		topPanel.setOpaque(false); // 배경 투명
+		topPanel.setLayout(new BorderLayout());
 
-	    // "Instruments" 레이블 추가
-	    JLabel instrumentsLabel = new JLabel("Instruments");
-	    instrumentsLabel.setFont(new Font("Arial", Font.BOLD, 20)); // 폰트 설정
-	    instrumentsLabel.setForeground(Color.BLACK); // 색상 설정
+		// 뒤로가기 버튼
+		JButton backbtn = new JButton();
+		try {
+			ImageIcon button_back = new ImageIcon(getClass().getResource("/img/button_back.png"));
+			backbtn.setIcon(updateImageSize(button_back, 25, 25));
+		} catch (Exception e) { System.out.println("이미지 로드 실패"); }
+		backbtn.setContentAreaFilled(false);
+		backbtn.setBorderPainted(false);
+		backbtn.setFocusPainted(false);
+		backbtn.setPreferredSize(new Dimension(40, 40));
+		backbtn.addActionListener(e -> {
+			new StartPage();
+			dispose();
+		});
 
-	    // 왼쪽 패널에 버튼과 레이블 추가
-	    JPanel leftPanel = new JPanel();
-	    leftPanel.setBackground(Color.WHITE);
-	    leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); // 왼쪽 정렬
-	    leftPanel.add(backbtn);
-	    leftPanel.add(instrumentsLabel);
+		// "Instruments" 레이블
+		JLabel instrumentsLabel = new JLabel("Instruments");
+		instrumentsLabel.setFont(new Font("Arial", Font.BOLD, 20));
+		instrumentsLabel.setForeground(Color.BLACK);
 
-	    // 상단 패널에 왼쪽 패널 추가
-	    topPanel.add(leftPanel, BorderLayout.WEST);
+		// 왼쪽 상단 패널 (투명 설정)
+		JPanel leftPanel = new JPanel();
+		leftPanel.setOpaque(false);
+		leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		leftPanel.add(backbtn);
+		leftPanel.add(instrumentsLabel);
 
-	    // 채팅 버튼
-	    JButton chatButton = new JButton();
-	    ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
-	    chatButton.setIcon(updateImageSize(chatIcon, 30, 30)); // 크기 조정
-	    chatButton.setContentAreaFilled(false);
-	    chatButton.setBorderPainted(false);
-	    chatButton.setFocusPainted(false);
-	    chatButton.setPreferredSize(new Dimension(55, 50));
-	    chatButton.addActionListener(new ActionListener() {
-	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            System.out.println("Chat button clicked!");  // 디버깅
-	            ChatClient chatClient = new ChatClient(); // ChatClient 인스턴스 생성
-	            chatClient.setLocation(650, 300);
-	            chatClient.setVisible(true);  // ChatClient 창 띄우기
-	            dispose();
-	        }
-	    });
+		topPanel.add(leftPanel, BorderLayout.WEST);
 
-	    // 상단 패널에 오른쪽 여백 추가 후 채팅 버튼 추가
-	    topPanel.add(Box.createRigidArea(new Dimension(10, 0)), BorderLayout.EAST); // 오른쪽 여백 추가
-	    topPanel.add(chatButton, BorderLayout.EAST); // 채팅 버튼 추가
+		// 채팅 버튼
+		JButton chatButton = new JButton();
+		try {
+			ImageIcon chatIcon = new ImageIcon(getClass().getResource("/img/send.png"));
+			chatButton.setIcon(updateImageSize(chatIcon, 30, 30));
+		} catch (Exception e) { System.out.println("이미지 로드 실패"); }
+		chatButton.setContentAreaFilled(false);
+		chatButton.setBorderPainted(false);
+		chatButton.setFocusPainted(false);
+		chatButton.setPreferredSize(new Dimension(55, 50));
+		chatButton.addActionListener(e -> {
+			ChatClient chatClient = new ChatClient();
+			chatClient.setVisible(true);
+			dispose();
+		});
 
-	    // 상단 패널을 프레임에 추가
-	    add(topPanel, BorderLayout.NORTH); // 상단에 배치
+		topPanel.add(chatButton, BorderLayout.EAST);
+		mainPanel.add(topPanel, BorderLayout.NORTH);
 
-	    // 버튼 패널
-	    JPanel buttonPanel = new JPanel();
-	    buttonPanel.setBackground(Color.WHITE);
-	    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		// 버튼 패널
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setOpaque(false); // 배경 투명
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 
-	    // 보컬 버튼
-	    JButton vocalButton = createButton("/img/mic.png", "Vocal");
-	    vocalButton.addActionListener(new ActionListener() {
-	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            VocalPage vocal = new VocalPage(); // MicPage.java 실행
-	            vocal.setLocation(350, 220);
-	            dispose();
-	        }
-	    });
+		// 악기 버튼들 생성
+		JButton vocalButton = createButton("/img/mic.png", "Vocal");
+		vocalButton.addActionListener(e -> {
+			new VocalPage();
+			dispose();
+		});
 
-	    // 피아노 버튼
-	    JButton pianoButton = createButton("/img/piano.png", "Piano");
-	    pianoButton.addActionListener(new ActionListener() {
-	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            PianoPage piano = new PianoPage(); // PianoPage.java 실행
-	            piano.setLocation(350, 220);
-	            dispose();
-	        }
-	    });
+		JButton pianoButton = createButton("/img/piano.png", "Piano");
+		pianoButton.addActionListener(e -> {
+			new PianoPage();
+			dispose();
+		});
 
-	    // 어쿠스틱 기타 버튼
-	    JButton acousticGuitarButton = createButton("/img/acousticGuitar.png", "Acoustic Guitar");
-	    acousticGuitarButton.addActionListener(new ActionListener() {
-	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            AcousticPage aGuitar = new AcousticPage(); // AcousticPage.java 실행
-	            aGuitar.setLocation(350, 220);
-	            dispose();
-	        }
-	    });
+		JButton acousticGuitarButton = createButton("/img/acousticGuitar.png", "Acoustic Guitar");
+		acousticGuitarButton.addActionListener(e -> {
+			new AcousticPage();
+			dispose();
+		});
 
-	    // 일렉기타 버튼
-	    JButton electricGuitarButton = createButton("/img/electricGuitar.png", "Electric Guitar");
-	    electricGuitarButton.addActionListener(new ActionListener() {
-	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	            ElectricPage eGuitar = new ElectricPage(); // ElectricPage.java 실행
-	            eGuitar.setLocation(350, 220);
-	            dispose();
-	        }
-	    });
+		JButton electricGuitarButton = createButton("/img/electricGuitar.png", "Electric Guitar");
+		electricGuitarButton.addActionListener(e -> {
+			new ElectricPage();
+			dispose();
+		});
 
-	    // 버튼 패널에 버튼과 간격 추가
-	    buttonPanel.add(Box.createHorizontalGlue()); // 왼쪽 여백
-	    buttonPanel.add(vocalButton);
-	    buttonPanel.add(Box.createRigidArea(new Dimension(10, 0))); // 버튼 간격
-	    buttonPanel.add(pianoButton);
-	    buttonPanel.add(Box.createRigidArea(new Dimension(10, 0))); // 버튼 간격
-	    buttonPanel.add(acousticGuitarButton);
-	    buttonPanel.add(Box.createRigidArea(new Dimension(10, 0))); // 버튼 간격
-	    buttonPanel.add(electricGuitarButton);
-	    buttonPanel.add(Box.createHorizontalGlue()); // 오른쪽 여백
+		// 버튼 패널에 추가
+		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(vocalButton);
+		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+		buttonPanel.add(pianoButton);
+		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+		buttonPanel.add(acousticGuitarButton);
+		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+		buttonPanel.add(electricGuitarButton);
+		buttonPanel.add(Box.createHorizontalGlue());
 
-	    add(buttonPanel, BorderLayout.CENTER); // 가운데 배치
+		mainPanel.add(buttonPanel, BorderLayout.CENTER);
 
-	    // 창 표시
-	    setVisible(true);
+		// 최종적으로 메인 패널을 프레임에 추가
+		add(mainPanel);
+		setVisible(true);
 	}
 
-    private JButton createButton(String imagePath, String text) {
-        JButton button = new JButton(text);
-        ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
-        button.setIcon(updateImageSize(icon, 150, 150));
-        button.setHorizontalTextPosition(SwingConstants.CENTER);
-        button.setVerticalTextPosition(SwingConstants.BOTTOM);
-        button.setPreferredSize(new Dimension(200, 250));
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        return button;
-    }
+	private JButton createButton(String imagePath, String text) {
+		JButton button = new JButton(text);
+		try {
+			ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
+			button.setIcon(updateImageSize(icon, 170, 240));
+		} catch (Exception e) {
+			System.out.println(imagePath + " 로드 실패");
+		}
+		button.setHorizontalTextPosition(SwingConstants.CENTER);
+		button.setVerticalTextPosition(SwingConstants.BOTTOM);
+		button.setPreferredSize(new Dimension(200, 250));
+		button.setContentAreaFilled(false);
+		button.setBorderPainted(false);
+		button.setFocusPainted(false);
 
-    // 이미지 크기 조정
-    private ImageIcon updateImageSize(ImageIcon icon, int width, int height) {
-        Image image = icon.getImage();
-        Image updatedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        return new ImageIcon(updatedImage);
-    }
+		button.setForeground(Color.BLACK);
+		button.setFont(new Font("Arial", Font.BOLD, 14));
 
-    public static void main(String[] args) {
-        new ChoosePage();
-    }
+		return button;
+	}
+
+	private ImageIcon updateImageSize(ImageIcon icon, int width, int height) {
+		Image image = icon.getImage();
+		Image updatedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+		return new ImageIcon(updatedImage);
+	}
+
+	public static void main(String[] args) {
+		new ChoosePage();
+	}
 }
